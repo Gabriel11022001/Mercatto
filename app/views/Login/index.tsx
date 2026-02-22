@@ -47,7 +47,7 @@ const Login = ({ navigation }: any) => {
     setCarregando(true);
 
     try {
-
+      navigation.navigate("home");
     } catch (e) {
 
     } finally {
@@ -97,11 +97,16 @@ const Login = ({ navigation }: any) => {
           </TouchableOpacity>
         </View>
         { /** botão para o usuário efetuar login no app */ }
-        <BotaoPadrao titulo="Entrar" onPressionar={ login } />
+        <BotaoPadrao titulo="Entrar" onPressionar={ login } habilitado={
+          erroEmail === ""
+          && erroSenha === ""
+          && email != ""
+          && senha != ""
+        } />
         <View style={ styles.containerRegistro }>
           <Text style={ styles.txtNovoUsuario }>Novo usuário?</Text>
           <TouchableOpacity onPress={ () => {
-
+            navigation.navigate("cadastro_usuario");
           } } >
             <Text style={ styles.txtBtnRegistroNovoUsuario }>Registrar-se</Text>
           </TouchableOpacity>

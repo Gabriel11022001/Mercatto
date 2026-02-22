@@ -34,6 +34,14 @@ export const config: Config = {
     {
       nomeCor: "borda",
       cor: "#E0E6ED"
+    },
+    {
+      nomeCor: "botao_desabilitado",
+      cor: "#C9D6DF"
+    },
+    {
+      nomeCor: "icone_opcao_menu",
+      cor: "#2E5C8A"
     }
   ]
 

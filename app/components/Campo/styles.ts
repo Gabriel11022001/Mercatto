@@ -33,6 +33,23 @@ export default StyleSheet.create({
     fontSize: 16,
     marginTop: 5,
     fontWeight: "bold"
+  },
+  containerCampoTelefone: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderStyle: "solid",
+    borderEndColor: config.cores.find(c => c.nomeCor === "borda")?.cor ?? "#000",
+    borderEndWidth: 1,
+    paddingEnd: 7
+  },
+  iconeBandeira: {
+    width: 24,
+    height: 24
+  },
+  txtDddTelefone: {
+    color: "#000",
+    fontSize: 16,
+    marginStart: 7
   }
 
 });
