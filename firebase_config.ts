@@ -4,11 +4,11 @@ import { API_KEY } from "./api_key_firebase";
 
 const firebaseConfig = {
   apiKey: API_KEY,
-  authDomain: "mercatto-d165a.firebaseapp.com",
-  projectId: "mercatto-d165a",
-  storageBucket: "mercatto-d165a.firebasestorage.app",
-  messagingSenderId: "923852911912",
-  appId: "1:923852911912:web:fcff877c5ef63eaea78c1d"
+  authDomain: "mercatto-23676.firebaseapp.com",
+  projectId: "mercatto-23676",
+  storageBucket: "mercatto-23676.firebasestorage.app",
+  messagingSenderId: "722476892011",
+  appId: "1:722476892011:web:24accc716c523c3d21962e"
 };
 
 const app = initializeApp(firebaseConfig);
