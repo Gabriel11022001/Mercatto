@@ -250,7 +250,7 @@ const CadastroCliente = ({ navigation, route }: any) => {
   }
 
   const redirecionarUsuarioListagemClientes = (): void => {
-    
+    navigation.navigate("clientes");
   }
 
   return (

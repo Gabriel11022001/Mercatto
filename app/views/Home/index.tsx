@@ -68,7 +68,7 @@ const Home = ({ navigation }: any) => {
             <Text style={ styles.txtOpcao }>Cadastrar Cliente</Text>
           </Pressable>
           { /** listar clientes */ }
-          <Pressable onPress={ () => {} } style={ ({ pressed }) => {
+          <Pressable onPress={ () => { navigation.navigate("clientes") } } style={ ({ pressed }) => {
 
             if (pressed) {
 
