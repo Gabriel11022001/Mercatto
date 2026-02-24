@@ -51,5 +51,5 @@ export default StyleSheet.create({
     fontSize: 16,
     marginStart: 7
   }
-
+  
 });

@@ -2,7 +2,10 @@ import BotaoPadrao from "@/app/components/BotaoPadrao";
 import Campo, { TipoCampo } from "@/app/components/Campo";
 import Loader from "@/app/components/Loader";
 import Tela from "@/app/components/Tela";
-import { useMemo, useState } from "react";
+import TelaDadosClienteSalvar from "@/app/components/TelaDadosClienteSalvar";
+import cadastrarClienteFirebase from "@/app/firebase/cadastrarUsuario";
+import { Cliente } from "@/app/type/cliente";
+import { useEffect, useMemo, useState } from "react";
 import { ScrollView } from "react-native";
 
 // tela de cadastro de cliente
@@ -36,6 +39,40 @@ const CadastroCliente = ({ navigation, route }: any) => {
   const [ erroComplemento, setErroComplemento ] = useState<string>("");
   const [ erroUf, setErroUf ] = useState<string>("");
   const [ erroNumero, setErroNumero ] = useState<string>("");
+  const [ clienteVisualizar, setClienteVisualizar ] = useState<Cliente | null>(null);
+ 
+  const getEstadosBrasil = (): Array<{ key: string, label: string, valor: string }> => {
+
+    return [
+      { key: "AC", label: "Acre", valor: "AC" },
+      { key: "AL", label: "Alagoas", valor: "AL" },
+      { key: "AP", label: "Amapá", valor: "AP" },
+      { key: "AM", label: "Amazonas", valor: "AM" },
+      { key: "BA", label: "Bahia", valor: "BA" },
+      { key: "CE", label: "Ceará", valor: "CE" },
+      { key: "DF", label: "Distrito Federal", valor: "DF" },
+      { key: "ES", label: "Espírito Santo", valor: "ES" },
+      { key: "GO", label: "Goiás", valor: "GO" },
+      { key: "MA", label: "Maranhão", valor: "MA" },
+      { key: "MT", label: "Mato Grosso", valor: "MT" },
+      { key: "MS", label: "Mato Grosso do Sul", valor: "MS" },
+      { key: "MG", label: "Minas Gerais", valor: "MG" },
+      { key: "PA", label: "Pará", valor: "PA" },
+      { key: "PB", label: "Paraíba", valor: "PB" },
+      { key: "PR", label: "Paraná", valor: "PR" },
+      { key: "PE", label: "Pernambuco", valor: "PE" },
+      { key: "PI", label: "Piauí", valor: "PI" },
+      { key: "RJ", label: "Rio de Janeiro", valor: "RJ" },
+      { key: "RN", label: "Rio Grande do Norte", valor: "RN" },
+      { key: "RS", label: "Rio Grande do Sul", valor: "RS" },
+      { key: "RO", label: "Rondônia", valor: "RO" },
+      { key: "RR", label: "Roraima", valor: "RR" },
+      { key: "SC", label: "Santa Catarina", valor: "SC" },
+      { key: "SP", label: "São Paulo", valor: "SP" },
+      { key: "SE", label: "Sergipe", valor: "SE" },
+      { key: "TO", label: "Tocantins", valor: "TO" }
+    ];
+  };
   
   const botaoSalvarHabilitado = useMemo(() => {
 
@@ -102,8 +139,126 @@ const CadastroCliente = ({ navigation, route }: any) => {
     setErroNome("");
   }
 
+  const onDigitarEmail = (emailDigitado: string): void => {
+    setEmail(emailDigitado);
+    setErroEmail("");
+  }
+
+  const onDigitarTelefone = (telefoneDigitado: string): void => {
+    setTelefone(telefoneDigitado);
+    setErroTelefone("");
+  }
+
+  const onDigitarDataNascimento = (dataNascimentoDigitado: string): void => {
+    setDataNascimento(dataNascimentoDigitado);
+    setErroDataNascimento("");
+  }
+
+  const onDigitarCep = (cepDigitado: string): void => {
+    setCep(cepDigitado);
+    setErroCep("");
+  }
+
+  const onDigitarEndereco = (enderecoDigitado: string): void => {
+    setEndereco(enderecoDigitado);
+    setErroEndereco("");
+  }
+
+  const onDigitarCidade = (cidadeDigitada: string): void => {
+    setCidade(cidadeDigitada);
+    setErroCidade("");
+  }
+
+  const onDigitarBairro = (bairroDigitado: string): void => {
+    setBairro(bairroDigitado);
+    setErroBairro("");
+  }
+
+  const onDigitarComplemento = (complementoDigitado: string): void => {
+    setComplemento(complementoDigitado);
+    setErroComplemento("");
+  }
+
+  const onDigitarNumero = (numeroDigitado: string): void => {
+    setNumero(numeroDigitado);
+    setErroNumero("");
+  }
+  
+  const onDigitarCpf = (cpfDigitado: string): void => {
+    setCpf(cpfDigitado);
+    setErroCpf("");
+  }
+
+  useEffect(() => {
+    // quando carregar a tela, deixar SP como padrão e Masculino como padrão
+    
+    if (uf === "") {
+      setUf("SP");
+    }
+
+    if (genero === "") {
+      setGenero("Masculino");
+    }
+
+  }, []);
+
+  const apresentarAlertaSucessoSalvarUsuario = (cliente: Cliente): void => {
+    setClienteVisualizar(cliente);
+  }
+
+  // salvar o cliente(cadastrar/editar)
+  const salvar = async () => {
+    
+    try {
+      setCarregando(true);
+
+      const cliente: Cliente = {
+        id: idClienteEditar ?? "",
+        nome: nome,
+        cpf: cpf,
+        email: email,
+        telefone: telefone,
+        dataNascimento: dataNascimento,
+        genero: genero,
+        endereco: {
+          cep: cep,
+          complemento: complemento,
+          numero: numero,
+          endereco: endereco,
+          bairro: bairro,
+          cidade: cidade,
+          uf: uf
+        }
+      }
+
+      if (idClienteEditar === "") {
+        // cadastrar o cliente
+        const resp = await cadastrarClienteFirebase(cliente);
+
+        // apresentar alerta
+        apresentarAlertaSucessoSalvarUsuario(resp);
+      } else {
+        // editar o cliente
+      }
+      
+    } catch (e) {
+
+    } finally {
+      setCarregando(false);
+    }
+
+  }
+
+  const redirecionarUsuarioListagemClientes = (): void => {
+    
+  }
+
   return (
     <Tela>
+      { clienteVisualizar && <TelaDadosClienteSalvar clienteApresentar={ clienteVisualizar } onRedirecionar={ () => {
+        // redirecionar o usuário para a tela com a listagem dos clientes cadastrados
+        redirecionarUsuarioListagemClientes();
+      } } /> }
       <Loader carregando={ carregando } msg={ idClienteEditar == "" ? 
         "Registrando o cliente no servidor, aguarde..." 
         : "Enviando os dados do cliente para o servidor, aguarde..." } />
@@ -120,6 +275,18 @@ const CadastroCliente = ({ navigation, route }: any) => {
           alterarValor={ (nomeDigitado: string) => {
             onDigitarNome(nomeDigitado);
           } } />
+        { /** cpf do cliente */ }
+        <Campo
+          valor={ cpf }
+          erro={ erroCpf }
+          habilitado={ true }
+          label="CPF"
+          senhaVisivel={ true }
+          onVisualizarSenha={ () => {} }
+          tipoCampo={ TipoCampo.cpf }
+          alterarValor={ (cpfDigitado: string) => {
+            onDigitarCpf(cpfDigitado);
+          } } />
         { /** e-mail do cliente */ }
         <Campo
           valor={ email }
@@ -130,8 +297,22 @@ const CadastroCliente = ({ navigation, route }: any) => {
           onVisualizarSenha={ () => {} }
           tipoCampo={ TipoCampo.email }
           alterarValor={ (emailDigitado: string) => {
-
+            onDigitarEmail(emailDigitado);
           } } />
+        { /** gênero do cliente */ }
+        <Campo
+          valor={ genero }
+          erro={ erroGenero }
+          habilitado={ true }
+          label="Gênero"
+          senhaVisivel={ true }
+          onVisualizarSenha={ () => {} }
+          tipoCampo={ TipoCampo.multiploSeletorGenero }
+          opcoes={ [
+            { key: "masculino", label: "Masculino", valor: "Masculino" },
+            { key: "feminino", label: "Feminino", valor: "Feminino" }
+          ] }
+          onSelecionarOpcao={ (generoSelecionado: string) => setGenero(generoSelecionado) } />
         { /** telefone do cliente */ }
         <Campo
           valor={ telefone }
@@ -142,7 +323,7 @@ const CadastroCliente = ({ navigation, route }: any) => {
           onVisualizarSenha={ () => {} }
           tipoCampo={ TipoCampo.telefone }
           alterarValor={ (telefoneDigitado: string) => {
-
+            onDigitarTelefone(telefoneDigitado);
           } } />
         { /** data de nascimento do cliente */ }
         <Campo
@@ -154,7 +335,7 @@ const CadastroCliente = ({ navigation, route }: any) => {
           onVisualizarSenha={ () => {} }
           tipoCampo={ TipoCampo.data }
           alterarValor={ (dataNascimentoDigitada: string) => {
-
+            onDigitarDataNascimento(dataNascimentoDigitada);
           } } />
         { /** cep */ }
         <Campo
@@ -166,7 +347,7 @@ const CadastroCliente = ({ navigation, route }: any) => {
           onVisualizarSenha={ () => {} }
           tipoCampo={ TipoCampo.cep }
           alterarValor={ (cepDigitado: string) => {
-            
+            onDigitarCep(cepDigitado);
           } }
           onConsultarEnderecoPeloCep={ () => {
 
@@ -181,7 +362,7 @@ const CadastroCliente = ({ navigation, route }: any) => {
           onVisualizarSenha={ () => {} }
           tipoCampo={ TipoCampo.endereco }
           alterarValor={ (enderecoDigitado: string) => {
-            
+            onDigitarEndereco(enderecoDigitado);
           } } />
         { /** complemento */ }
         <Campo
@@ -193,9 +374,21 @@ const CadastroCliente = ({ navigation, route }: any) => {
           onVisualizarSenha={ () => {} }
           tipoCampo={ TipoCampo.complemento }
           alterarValor={ (complementoDigitado: string) => {
-            
+            onDigitarComplemento(complementoDigitado);
           } } />
-        { /** complemento */ }
+        { /** cidade */ }
+        <Campo
+          valor={ cidade }
+          erro={ erroCidade }
+          habilitado={ true }
+          label="Cidade"
+          senhaVisivel={ true }
+          onVisualizarSenha={ () => {} }
+          tipoCampo={ TipoCampo.endereco }
+          alterarValor={ (cidadeDigitada: string) => {
+            onDigitarCidade(cidadeDigitada);
+          } } />
+        { /** bairro */ }
         <Campo
           valor={ bairro }
           erro={ erroBairro }
@@ -205,7 +398,32 @@ const CadastroCliente = ({ navigation, route }: any) => {
           onVisualizarSenha={ () => {} }
           tipoCampo={ TipoCampo.endereco }
           alterarValor={ (bairroDigitado: string) => {
-            
+            onDigitarBairro(bairroDigitado);
+          } } />
+        { /** estado */ }
+        <Campo
+          valor={ uf }
+          erro={ erroUf }
+          habilitado={ true }
+          label="Estado"
+          senhaVisivel={ true }
+          onVisualizarSenha={ () => {} }
+          tipoCampo={ TipoCampo.multiploSeletorEndereco }
+          opcoes={ getEstadosBrasil() }
+          onSelecionarOpcao={ (estadoSelecionado: string) => {
+            setUf(estadoSelecionado);
+          } } />
+        { /** número */ }
+        <Campo
+          valor={ numero }
+          erro={ erroNumero }
+          habilitado={ true }
+          label="Número(opcional)"
+          senhaVisivel={ true }
+          onVisualizarSenha={ () => {} }
+          tipoCampo={ TipoCampo.endereco }
+          alterarValor={ (numeroDigitado: string) => {
+            onDigitarNumero(numeroDigitado);
           } } />
         <BotaoPadrao
           titulo={ idClienteEditar != "" ? "Salvar" : "Cadastrar" }
@@ -213,9 +431,7 @@ const CadastroCliente = ({ navigation, route }: any) => {
           styleAdicional={ {
             marginBottom: 100
           } }
-          onPressionar={ () => {
-
-          } } />
+          onPressionar={ salvar } />
       </ScrollView>
     </Tela>
   );

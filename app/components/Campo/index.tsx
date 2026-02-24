@@ -3,6 +3,7 @@ import AntDesign from '@expo/vector-icons/AntDesign';
 import Feather from '@expo/vector-icons/Feather';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { Picker } from '@react-native-picker/picker';
 import { Image, Text, TextInput, TouchableOpacity, View } from "react-native";
 import styles from "./styles";
 
@@ -17,7 +18,10 @@ export enum TipoCampo {
   data,
   cep,
   endereco,
-  complemento
+  complemento,
+  multiploSeletorEndereco,
+  multiploSeletorGenero,
+  cpf
 
 }
 
@@ -27,11 +31,13 @@ interface Props {
   label: string;
   tipoCampo: TipoCampo;
   erro?: string;
-  alterarValor: (valor: string) => void;
+  alterarValor?: (valor: string) => void;
   habilitado: boolean;
   senhaVisivel: boolean;
   onVisualizarSenha: () => void;
   onConsultarEnderecoPeloCep?: () => void;
+  onSelecionarOpcao?: (opcaoSelecionada: string) => void;
+  opcoes?: Array<{ key: string, valor: string, label: string }>;
 
 }
 
@@ -44,7 +50,9 @@ const Campo = ({
   habilitado,
   senhaVisivel = false,
   onVisualizarSenha,
-  onConsultarEnderecoPeloCep
+  onConsultarEnderecoPeloCep,
+  onSelecionarOpcao,
+  opcoes
 }: Props) => {
 
   // obter o icone do campo
@@ -62,7 +70,7 @@ const Campo = ({
       return <AntDesign name="lock" size={ 24 } color={ corIcones } />;
     }
 
-    if (tipoCampo === TipoCampo.nomeUsuario || tipoCampo === TipoCampo.nome) {
+    if (tipoCampo === TipoCampo.nomeUsuario || tipoCampo === TipoCampo.nome || tipoCampo === TipoCampo.cpf) {
 
       return <Ionicons name="person-outline" size={ 24 } color={ corIcones } />;
     }
@@ -77,6 +85,16 @@ const Campo = ({
     ) {
 
       return <Feather name="map-pin" size={ 24 } color={ corIcones } />;
+    }
+
+    if (tipoCampo === TipoCampo.multiploSeletorEndereco) {
+
+      return <AntDesign name="home" size={ 24 } color={ corIcones } />
+    }
+
+    if (tipoCampo === TipoCampo.multiploSeletorGenero) {
+
+      return <FontAwesome name="transgender" size={ 24 } color={ corIcones } />;
     }
 
     return null;
@@ -112,6 +130,37 @@ const Campo = ({
     return "default";
   }
 
+  if (tipoCampo === TipoCampo.multiploSeletorEndereco || tipoCampo === TipoCampo.multiploSeletorGenero) {
+
+    return <View style={ styles.containerCampo }>
+      <View style={ {
+        backgroundColor: config.cores.find(c => c.nomeCor === "branco")?.cor ?? "#fff",
+        padding: 10,
+        borderRadius: 12,
+        borderStyle: "solid",
+        borderWidth: 1,
+        borderColor: config.cores.find(c => c.nomeCor === "borda")?.cor ?? "#000",
+        elevation: 3,
+        flexDirection: "row",
+        alignItems: "center"
+      } }>
+        { getIcone() }
+        <Picker style={ { flex: 1, marginStart: 5 } } selectedValue={ valor } onValueChange={ (valorSelecionado: string) => {
+          
+          if (onSelecionarOpcao) {
+            onSelecionarOpcao(valorSelecionado);
+          }
+
+        } }>
+          { opcoes?.map((op) => {
+
+            return <Picker.Item label={ op.label } value={ op.valor } key={ op.key } />
+          }) }
+        </Picker>
+      </View>
+    </View>
+  }
+
   return <View style={ styles.containerCampo }>
     <View style={ styles.campo }>
       { tipoCampo != TipoCampo.telefone && getIcone() }
@@ -125,7 +174,11 @@ const Campo = ({
         placeholder={ label }
         secureTextEntry={ tipoCampo === TipoCampo.senha && !senhaVisivel }
         onChangeText={ (valorDigitado: string) => {
-          alterarValor(valorDigitado);
+          
+          if (alterarValor) {
+            alterarValor(valorDigitado);
+          }
+
         } }
         underlineColorAndroid={ undefined }
         inputMode={ getModoTecladoCampo() }
