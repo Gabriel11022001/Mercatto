@@ -43,3 +43,5 @@ app-example
 /android
 
 api_key_firebase.ts
+
+.env

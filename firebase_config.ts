@@ -1,9 +1,15 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
-import { API_KEY } from "./api_key_firebase";
+
+const getApiKeyFirebase = (): string => {
+
+  return process.env.EXPO_PUBLIC_API_KEY_FIREBASE ?? ""; 
+}
+
+const apiKey = getApiKeyFirebase();
 
 const firebaseConfig = {
-  apiKey: API_KEY,
+  apiKey: getApiKeyFirebase(),
   authDomain: "mercatto-23676.firebaseapp.com",
   projectId: "mercatto-23676",
   storageBucket: "mercatto-23676.firebasestorage.app",
