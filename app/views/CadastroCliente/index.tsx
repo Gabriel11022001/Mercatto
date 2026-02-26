@@ -5,6 +5,11 @@ import Tela from "@/app/components/Tela";
 import TelaDadosClienteSalvar from "@/app/components/TelaDadosClienteSalvar";
 import cadastrarClienteFirebase from "@/app/firebase/cadastrarUsuario";
 import { Cliente } from "@/app/type/cliente";
+import { validarCep } from "@/app/utils/validarCep";
+import validarCpf from "@/app/utils/validarCpf";
+import { validarDataNascimento } from "@/app/utils/validarDataNascimento";
+import validarEmail from "@/app/utils/validarEmail";
+import { validarTelefone } from "@/app/utils/validarTelefone";
 import { useEffect, useMemo, useState } from "react";
 import { ScrollView } from "react-native";
 
@@ -40,6 +45,7 @@ const CadastroCliente = ({ navigation, route }: any) => {
   const [ erroUf, setErroUf ] = useState<string>("");
   const [ erroNumero, setErroNumero ] = useState<string>("");
   const [ clienteVisualizar, setClienteVisualizar ] = useState<Cliente | null>(null);
+  const [ carregandoConsultaEndereco, setCarregandoConsultaEndereco ] = useState<boolean>(false);
  
   const getEstadosBrasil = (): Array<{ key: string, label: string, valor: string }> => {
 
@@ -137,56 +143,154 @@ const CadastroCliente = ({ navigation, route }: any) => {
   const onDigitarNome = (nomeDigitado: string): void => {
     setNome(nomeDigitado);
     setErroNome("");
+
+    if (nomeDigitado.trim().length === 0) {
+      setErroNome("Informe o nome do cliente.");
+    } else if (nomeDigitado.length < 3) {
+      setErroNome("O nome do cliente deve conter no mínimo 3 caracteres.");
+    }
+
   }
 
   const onDigitarEmail = (emailDigitado: string): void => {
     setEmail(emailDigitado);
     setErroEmail("");
+
+    if (emailDigitado.trim().length === 0) {
+      setErroEmail("Informe o e-mail do cliente.");
+
+      return;
+    }
+
+    if (!validarEmail(emailDigitado)) {
+      setErroEmail("Informe um e-mail válido para o cliente.");
+
+      return;
+    }
+
   }
 
   const onDigitarTelefone = (telefoneDigitado: string): void => {
     setTelefone(telefoneDigitado);
     setErroTelefone("");
+
+    if (telefoneDigitado.trim().length === 0) {
+      setErroTelefone("Informe o telefone do cliente.");
+    } else if (!validarTelefone(telefoneDigitado)) {
+      setErroTelefone("Informe um telefone válido para o cliente.");
+    }
+
   }
 
   const onDigitarDataNascimento = (dataNascimentoDigitado: string): void => {
     setDataNascimento(dataNascimentoDigitado);
     setErroDataNascimento("");
+    
+    if (dataNascimentoDigitado.trim().length === 0) {
+      setErroDataNascimento("Informe a data de nascimento do cliente.");
+
+      return;
+    }
+
+    if (!validarDataNascimento(dataNascimentoDigitado)) {
+      setErroDataNascimento("Informe uma data de nascimento válida para o cliente.");
+
+      return;
+    }
+
   }
 
   const onDigitarCep = (cepDigitado: string): void => {
     setCep(cepDigitado);
     setErroCep("");
+
+    if (cepDigitado.trim().length === 0) {
+      setErroCep("Informe o cep do cliente.");
+
+      return;
+    }
+
+    if (!validarCep(cepDigitado)) {
+      setErroCep("Informe um cep válido para o cliente.");
+      
+      return;
+    }
+
   }
 
   const onDigitarEndereco = (enderecoDigitado: string): void => {
     setEndereco(enderecoDigitado);
     setErroEndereco("");
+
+    if (enderecoDigitado.trim().length === 0) {
+      setErroEndereco("Informe o endereço do cliente.");
+    }
+
   }
 
   const onDigitarCidade = (cidadeDigitada: string): void => {
     setCidade(cidadeDigitada);
     setErroCidade("");
+
+    cidadeDigitada.trim().length === 0 && setErroCidade("Informe a cidade do cliente.");
+
   }
 
   const onDigitarBairro = (bairroDigitado: string): void => {
     setBairro(bairroDigitado);
     setErroBairro("");
+
+    bairroDigitado
+      .trim()
+      .length === 0 && setErroBairro("Informe o bairro do cliente.");
+
   }
 
   const onDigitarComplemento = (complementoDigitado: string): void => {
     setComplemento(complementoDigitado);
     setErroComplemento("");
+
+    if (complementoDigitado.trim().length > 0 && complementoDigitado.trim().length < 3) {
+      setErroComplemento("O complemento deve conter no mínimo 3 caracteres.");
+    }
+
   }
 
   const onDigitarNumero = (numeroDigitado: string): void => {
     setNumero(numeroDigitado);
     setErroNumero("");
+
+    if (numeroDigitado.trim().length > 0) {
+      const numeroConvertido: number = parseInt(numeroDigitado);
+
+      if (Number.isNaN(numeroConvertido)) {
+
+        if (numeroDigitado.trim().toLowerCase() != "s/n") {
+          setErroNumero("Informe um número válido.");
+        }
+
+      } else {
+
+        if (numeroConvertido <= 0) {
+          setErroNumero("Informe um número válido.");
+        }
+
+      }
+
+    }
+
   }
   
   const onDigitarCpf = (cpfDigitado: string): void => {
     setCpf(cpfDigitado);
     setErroCpf("");
+
+    if (cpfDigitado.trim().length === 0) {
+      setErroCpf("Informe o cpf do cliente.");
+    } else if (!validarCpf(cpfDigitado)) {
+      setErroCpf("Informe um cpf válido para o cliente.");
+    }
+
   }
 
   useEffect(() => {
@@ -251,6 +355,20 @@ const CadastroCliente = ({ navigation, route }: any) => {
 
   const redirecionarUsuarioListagemClientes = (): void => {
     navigation.navigate("clientes");
+  }
+
+  // consultar endereço do cliente pelo cep
+  const consultarEnderecoPeloCep = async () => {
+    setCarregandoConsultaEndereco(true);
+
+    try {
+
+    } catch (e) {
+
+    } finally {
+      setCarregandoConsultaEndereco(false);
+    }
+  
   }
 
   return (
@@ -350,7 +468,7 @@ const CadastroCliente = ({ navigation, route }: any) => {
             onDigitarCep(cepDigitado);
           } }
           onConsultarEnderecoPeloCep={ () => {
-
+            consultarEnderecoPeloCep();
           } } />
         { /** endereço */ }
         <Campo

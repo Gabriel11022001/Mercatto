@@ -7,8 +7,8 @@ export default StyleSheet.create({
     width: "90%",
     marginStart: "5%",
     marginEnd: "5%",
-    marginTop: 20,
-    marginBottom: 20
+    marginTop: 15,
+    marginBottom: 15
   },
   campo: {
     backgroundColor: config.cores.find(c => c.nomeCor === "branco")?.cor ?? "#fff",

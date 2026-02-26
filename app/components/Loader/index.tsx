@@ -20,7 +20,7 @@ const Loader = ({ msg, carregando }: Props) => {
   return <View style={ styles.loader }>
       <Image style={ styles.logoLoader } source={ require("@/assets/images/logo_sem_fundo.png") } />
       <ActivityIndicator color={ config.cores.find(c => c.nomeCor === "primaria")?.cor ?? "#000" } size={ 70 } />
-      <Text style={ styles.txtEfetuandoLogin }>{ msg ? msg : "Carregando, aguarde..." }</Text>
+      <Text style={ styles.txtLoader }>{ msg ? msg : "Carregando, aguarde..." }</Text>
   </View>
 }
 

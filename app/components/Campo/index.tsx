@@ -130,6 +130,51 @@ const Campo = ({
     return "default";
   }
 
+  // aplicar máscara de cpf no campo
+  const aplicarMascaraCpfCampo = (valor: string): string => {
+    const apenasNumeros = valor.replace(/\D/g, '');
+
+    const cpfLimitado = apenasNumeros.slice(0, 11);
+
+    const cpf: string = cpfLimitado
+      .replace(/(\d{3})(\d)/, '$1.$2')
+      .replace(/(\d{3})(\d)/, '$1.$2')
+      .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+
+    return cpf;
+  }
+
+  // aplicar uma máscara no campo de cep
+  const aplicarMascaraCepCampo = (valor: string): string => {
+    const apenasNumeros = valor.replace(/\D/g, '');
+
+    const cepLimitado = apenasNumeros.slice(0, 8);
+
+    return cepLimitado.replace(/(\d{5})(\d)/, '$1-$2');
+  }
+
+  // aplicar uma máscara no campo de telefone
+  const aplicarMascaraTelefoneCampo = (valor: string): string => {
+    const apenasNumeros = valor.replace(/\D/g, '');
+
+    const numeroLimitado = apenasNumeros.slice(0, 11);
+
+    return numeroLimitado
+      .replace(/^(\d{2})(\d)/g, '($1) $2')
+      .replace(/(\d{5})(\d)/, '$1-$2');
+  }
+
+  // aplicar mascara no campo de data de nascimento
+  const aplicarMascaraDataNascimentoCampo = (valor: string): string => {
+    const apenasNumeros = valor.replace(/\D/g, '');
+
+    const dataLimitada = apenasNumeros.slice(0, 8);
+
+    return dataLimitada
+      .replace(/(\d{2})(\d)/, '$1/$2')
+      .replace(/(\d{2})(\d)/, '$1/$2');
+  }
+
   if (tipoCampo === TipoCampo.multiploSeletorEndereco || tipoCampo === TipoCampo.multiploSeletorGenero) {
 
     return <View style={ styles.containerCampo }>
@@ -176,6 +221,31 @@ const Campo = ({
         onChangeText={ (valorDigitado: string) => {
           
           if (alterarValor) {
+
+            if (tipoCampo === TipoCampo.cpf) {
+              alterarValor(aplicarMascaraCpfCampo(valorDigitado));
+
+              return;
+            }
+
+            if (tipoCampo === TipoCampo.cep) {
+              alterarValor(aplicarMascaraCepCampo(valorDigitado));
+              
+              return;
+            }
+
+            if (tipoCampo === TipoCampo.telefone) {
+              alterarValor(aplicarMascaraTelefoneCampo(valorDigitado));
+
+              return;
+            }
+
+            if (tipoCampo === TipoCampo.data) {
+              alterarValor(aplicarMascaraDataNascimentoCampo(valorDigitado));
+
+              return;
+            }
+
             alterarValor(valorDigitado);
           }
 

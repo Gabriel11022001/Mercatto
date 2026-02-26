@@ -6,8 +6,6 @@ const getApiKeyFirebase = (): string => {
   return process.env.EXPO_PUBLIC_API_KEY_FIREBASE ?? ""; 
 }
 
-const apiKey = getApiKeyFirebase();
-
 const firebaseConfig = {
   apiKey: getApiKeyFirebase(),
   authDomain: "mercatto-23676.firebaseapp.com",

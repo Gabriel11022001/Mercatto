@@ -12,14 +12,14 @@ const styles = StyleSheet.create({
     zIndex: 999999999,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "rgba(255, 255, 255, 0.8)",
+    backgroundColor: "rgba(39, 174, 96, 0.2)",
     padding: 20
   },
   logoLoader: {
     width: "100%",
     height: 200
   },
-  txtEfetuandoLogin: {
+  txtLoader: {
     color: config.cores.find(c => c.nomeCor === "primaria")?.cor ?? "#000",
     fontWeight: "bold",
     textAlign: "center",
