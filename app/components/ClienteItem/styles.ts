@@ -40,6 +40,22 @@ const styles = StyleSheet.create({
     color: config.cores.find(c => c.nomeCor === "texto")?.cor ?? "#000",
     fontSize: 15,
     marginTop: 4
+  },
+  containerOperacoes: {
+    position: "absolute",
+    backgroundColor: config.cores.find(c => c.nomeCor === "branco")?.cor ?? "#fff",
+    padding: 10,
+    borderRadius: 10,
+    borderColor: config.cores.find(c => c.nomeCor === "borda")?.cor ?? "#000",
+    borderWidth: 1,
+    borderStyle: "solid",
+    flexDirection: "column",
+    alignItems: "flex-start",
+    width: 140,
+    elevation: 3,
+    right: 9,
+    zIndex: 99999,
+    top: 83
   }
 
 });

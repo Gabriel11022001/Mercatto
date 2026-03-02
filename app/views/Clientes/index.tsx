@@ -1,5 +1,4 @@
 import AlertaNaoExistemDados from "@/app/components/AlertaNaoExistemDados";
-import BottomSheetOperacoes, { OperacaoPermitida } from "@/app/components/BottomSheetOperacoes";
 import ClienteItem from "@/app/components/ClienteItem";
 import Loader from "@/app/components/Loader";
 import Tela from "@/app/components/Tela";
@@ -16,7 +15,6 @@ const Clientes = ({ navigation }: any) => {
 
   const [ carregando, setCarregando ] = useState<boolean>(false);
   const [ clientes, setClientes ] = useState<Array<Cliente>>([]);
-  const [ clienteOperacao, setClienteOperacao ] = useState<Cliente | null>(null);
 
   const listarClientes = async () => {
     console.log("Consultando os clientes no servidor...");
@@ -39,17 +37,9 @@ const Clientes = ({ navigation }: any) => {
 
   }
 
-  const redirecionarTelaEditarCliente = (): void => {
-    navigation.navigate("cadastro_cliente", { idClienteEditar: clienteOperacao?.id ?? "" });
-  }
-
   // deletar cliente no servidor
-  const deletarCliente = async () => {
-    const idClienteDeletar: string = clienteOperacao?.id ?? "";
-
-    console.log("Deletar o cliente de id " + idClienteDeletar);
-
-    setClienteOperacao(null);
+  const deletarCliente = async (clienteDeletar: Cliente) => {
+    const idClienteDeletar: string = clienteDeletar?.id ?? "";
 
     setCarregando(true);
 
@@ -69,53 +59,16 @@ const Clientes = ({ navigation }: any) => {
 
   }
 
-  const executarOperacao = async (operacao: OperacaoPermitida) => {
-
-    switch (operacao) {
-      case OperacaoPermitida.visualizar:
-        // visualizar dados do cliente
-        setClienteOperacao(null);
-        redirecionarTelaEditarCliente();
-        break;
-      case OperacaoPermitida.editar:
-        // editar dados do cliente
-        setClienteOperacao(null);
-        redirecionarTelaEditarCliente();
-        break;
-      case OperacaoPermitida.deletar:
-        // deletar cliente
-        deletarCliente();
-        break;
-    }
-
+  const redirecionarVisualizarDadosCliente = (cliente: Cliente) => {
+    navigation.navigate("cadastro_cliente", { idClienteEditar: cliente.id });
   }
-  
+
   useFocusEffect(useCallback(() => {
     listarClientes();
   }, []));
 
   return (
     <Tela>
-      <BottomSheetOperacoes
-        operacoes={ [
-          OperacaoPermitida.deletar,
-          OperacaoPermitida.visualizar,
-          OperacaoPermitida.editar
-        ] }
-        apresentar={ clienteOperacao != null }
-        titulo="Gerenciar Cliente"
-        onFechar={ () => {
-          setClienteOperacao(null);
-        } }
-        onVisualizar={ () => {
-          executarOperacao(OperacaoPermitida.visualizar);
-        } }
-        onEditar={ () => {
-          executarOperacao(OperacaoPermitida.editar);
-        } }
-        onDeletar={ () => {
-          executarOperacao(OperacaoPermitida.deletar);
-        } } />
       <Loader carregando={ carregando } />
       { clientes.length === 0 ? <AlertaNaoExistemDados mensagem="Não existem clientes cadastrados na base de dados." /> : <FlatList
         style={ { backgroundColor: config.cores.find(cor => cor.nomeCor === "branco")?.cor ?? "#fff" } }
@@ -123,9 +76,17 @@ const Clientes = ({ navigation }: any) => {
         keyExtractor={ c => c.id.toString() ?? "" }
         renderItem={ ({ item }) => {
 
-          return <ClienteItem cliente={ item } onApresentarOperacoesCliente={ () => {
-            setClienteOperacao(item);
-          } } />
+          return <ClienteItem
+            cliente={ item }
+            onVisualizar={ () => {
+              redirecionarVisualizarDadosCliente(item);
+            } }
+            onEditar={ () => {
+              redirecionarVisualizarDadosCliente(item);
+            } }
+            onDeletar={ () => {
+              deletarCliente(item);
+            } } />
         } } />  }  
     </Tela>
   );

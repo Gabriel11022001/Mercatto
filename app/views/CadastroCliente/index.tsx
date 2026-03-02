@@ -4,13 +4,16 @@ import Loader from "@/app/components/Loader";
 import Tela from "@/app/components/Tela";
 import TelaDadosClienteSalvar from "@/app/components/TelaDadosClienteSalvar";
 import cadastrarClienteFirebase from "@/app/firebase/cadastrarUsuario";
+import { consultarClienteFirebase } from "@/app/firebase/consultarCliente";
+import { editarClienteFirebase } from "@/app/firebase/editarCliente";
 import { Cliente } from "@/app/type/cliente";
 import { validarCep } from "@/app/utils/validarCep";
 import validarCpf from "@/app/utils/validarCpf";
 import { validarDataNascimento } from "@/app/utils/validarDataNascimento";
 import validarEmail from "@/app/utils/validarEmail";
 import { validarTelefone } from "@/app/utils/validarTelefone";
-import { useEffect, useMemo, useState } from "react";
+import { useFocusEffect } from "@react-navigation/native";
+import { useCallback, useEffect, useState } from "react";
 import { ScrollView } from "react-native";
 
 // tela de cadastro de cliente
@@ -46,6 +49,7 @@ const CadastroCliente = ({ navigation, route }: any) => {
   const [ erroNumero, setErroNumero ] = useState<string>("");
   const [ clienteVisualizar, setClienteVisualizar ] = useState<Cliente | null>(null);
   const [ carregandoConsultaEndereco, setCarregandoConsultaEndereco ] = useState<boolean>(false);
+  const [ habilitarBotaoSalvar, setHabilitarBotaoSalvar ] = useState<boolean>(false);
  
   const getEstadosBrasil = (): Array<{ key: string, label: string, valor: string }> => {
 
@@ -79,66 +83,6 @@ const CadastroCliente = ({ navigation, route }: any) => {
       { key: "TO", label: "Tocantins", valor: "TO" }
     ];
   };
-  
-  const botaoSalvarHabilitado = useMemo(() => {
-
-    if (nome != "" 
-      && email != ""
-      && cpf != ""
-      && dataNascimento != ""
-      && telefone != ""
-      && genero != ""
-      && cep != ""
-      && endereco != ""
-      && cidade != ""
-      && bairro != ""
-      && uf != ""
-      && erroNome === ""
-      && erroCpf === ""
-      && erroEmail === ""
-      && erroTelefone === ""
-      && erroGenero === ""
-      && erroCep === ""
-      && erroEndereco === ""
-      && erroComplemento === ""
-      && erroCidade === ""
-      && erroUf === ""
-      && erroBairro === ""
-      && erroNumero === ""
-    ) {
-
-      return true;
-    }
-
-    return false;
-  }, [
-    nome,
-    cpf,
-    email,
-    telefone,
-    dataNascimento,
-    genero,
-    cep,
-    endereco,
-    cidade,
-    bairro,
-    complemento,
-    uf,
-    numero,
-    erroNome,
-    erroCpf,
-    erroEmail,
-    erroTelefone,
-    erroDataNascimento,
-    erroGenero,
-    erroCep,
-    erroComplemento,
-    erroEndereco,
-    erroBairro,
-    erroCidade,
-    erroUf,
-    erroNumero
-  ]);
 
   const onDigitarNome = (nomeDigitado: string): void => {
     setNome(nomeDigitado);
@@ -336,6 +280,7 @@ const CadastroCliente = ({ navigation, route }: any) => {
       }
 
       if (idClienteEditar === "") {
+        console.log("Cadastrando cliente na base de dados...");
         // cadastrar o cliente
         const resp = await cadastrarClienteFirebase(cliente);
 
@@ -343,6 +288,11 @@ const CadastroCliente = ({ navigation, route }: any) => {
         apresentarAlertaSucessoSalvarUsuario(resp);
       } else {
         // editar o cliente
+        console.log("Editar cliente...");
+
+        const resp = await editarClienteFirebase(cliente);
+
+        apresentarAlertaSucessoSalvarUsuario(resp);
       }
       
     } catch (e) {
@@ -370,6 +320,103 @@ const CadastroCliente = ({ navigation, route }: any) => {
     }
   
   }
+
+  // buscar o cliente pelo id
+  const buscarClientePeloId = async (idCliente: string) => {
+    setCarregando(true);
+
+    try {
+      const cliente: Cliente | null = await consultarClienteFirebase(idCliente);
+
+      if (cliente) {
+        setNome(cliente.nome);
+        setCpf(cliente.cpf);
+        setEmail(cliente.email);
+        setTelefone(cliente.telefone);
+        setDataNascimento(cliente.dataNascimento);
+        setCep(cliente.endereco.cep);
+        setComplemento(cliente.endereco.complemento);
+        setCidade(cliente.endereco.cidade);
+        setBairro(cliente.endereco.bairro);
+        setNumero(cliente.endereco.numero);
+        setUf(cliente.endereco.uf);
+        setGenero(cliente.genero);
+        setEndereco(cliente.endereco.endereco);
+      } else {
+        console.log("Cliente não foi encontrado na base de dados...");
+      }
+
+    } catch (e) {
+
+    } finally {
+      setCarregando(false);
+    }
+
+  }
+
+  useFocusEffect(useCallback(() => {
+
+    if (route.params) {
+      setIdClienteEditar(route.params.idClienteEditar);
+
+      buscarClientePeloId(route.params.idClienteEditar);
+    }
+
+  }, []));
+
+  useEffect(() => {
+
+    if (
+      nome != ""
+      && cpf != ""
+      && email != ""
+      && telefone != ""
+      && dataNascimento != ""
+      && cep != ""
+      && cidade != ""
+      && bairro != ""
+      && endereco != ""
+      && erroNome === ""
+      && erroCpf === ""
+      && erroEmail === ""
+      && erroTelefone === ""
+      && erroDataNascimento === ""
+      && erroCep === ""
+      && erroCidade === ""
+      && erroBairro === ""
+      && erroEndereco === ""
+      && erroComplemento === ""
+      && erroNumero === ""
+    ) {
+      setHabilitarBotaoSalvar(true);
+    } else {
+      setHabilitarBotaoSalvar(false);
+    }
+
+  }, [
+    nome,
+    cpf,
+    email,
+    telefone,
+    dataNascimento,
+    cep,
+    cidade,
+    bairro,
+    endereco,
+    complemento,
+    numero,
+    erroNome,
+    erroCpf,
+    erroEmail,
+    erroTelefone,
+    erroDataNascimento,
+    erroCep,
+    erroCidade,
+    erroBairro,
+    erroEndereco,
+    erroComplemento,
+    erroNumero
+  ]);
 
   return (
     <Tela>
@@ -545,7 +592,7 @@ const CadastroCliente = ({ navigation, route }: any) => {
           } } />
         <BotaoPadrao
           titulo={ idClienteEditar != "" ? "Salvar" : "Cadastrar" }
-          habilitado={ botaoSalvarHabilitado }
+          habilitado={ habilitarBotaoSalvar }
           styleAdicional={ {
             marginBottom: 100
           } }
