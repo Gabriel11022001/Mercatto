@@ -27,7 +27,8 @@ export const consultarClienteFirebase = async (id: string) => {
           cidade: snapshot.data().cidade,
           uf: snapshot.data().uf,
           numero: snapshot.data().numero
-        }
+        },
+        foto: snapshot.data().foto ?? ""
       }
 
       return cliente;

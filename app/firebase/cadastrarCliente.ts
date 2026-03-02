@@ -20,7 +20,8 @@ const cadastrarClienteFirebase = async (cliente: Cliente) => {
       bairro: cliente.endereco.bairro.trim(),
       uf: cliente.endereco.uf.trim(),
       numero: cliente.endereco.numero.trim(),
-      criado_em: new Date()
+      criado_em: new Date(),
+      foto: cliente.foto ?? ""
     });
 
     console.log("Cliente cadastrado com sucesso: " + docRefCadastrarCliente.id);

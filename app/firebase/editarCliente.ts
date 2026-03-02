@@ -6,7 +6,7 @@ import { Cliente } from "../type/cliente";
 export const editarClienteFirebase = async (cliente: Cliente) => {
 
   if (!cliente.id) {
-    
+
     throw new Error("Cliente não possui ID para edição.");
   }
 
@@ -26,7 +26,8 @@ export const editarClienteFirebase = async (cliente: Cliente) => {
       cidade: cliente.endereco.cidade.trim(),
       bairro: cliente.endereco.bairro.trim(),
       uf: cliente.endereco.uf.trim(),
-      numero: cliente.endereco.numero.trim()
+      numero: cliente.endereco.numero.trim(),
+      foto: cliente.foto ?? ""
     });
 
     console.log("Cliente atualizado com sucesso.");

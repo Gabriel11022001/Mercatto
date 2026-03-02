@@ -27,7 +27,8 @@ const listarClientesFirebase = async () => {
           bairro: c.data().bairro,
           uf: c.data().uf,
           numero: c.data().numero
-        }
+        },
+        foto: c.data().foto ?? ""
       });
     });
 

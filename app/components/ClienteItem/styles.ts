@@ -25,8 +25,8 @@ const styles = StyleSheet.create({
     flex: 1
   },
   foto: {
-    width: 70,
-    height: 70,
+    width: 80,
+    height: 80,
     borderRadius: 100,
     marginEnd: 20
   },

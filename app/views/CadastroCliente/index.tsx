@@ -1,9 +1,11 @@
 import BotaoPadrao from "@/app/components/BotaoPadrao";
+import BotaoTirarFoto from "@/app/components/BotaoTirarFoto";
 import Campo, { TipoCampo } from "@/app/components/Campo";
+import Foto from "@/app/components/Foto";
 import Loader from "@/app/components/Loader";
 import Tela from "@/app/components/Tela";
 import TelaDadosClienteSalvar from "@/app/components/TelaDadosClienteSalvar";
-import cadastrarClienteFirebase from "@/app/firebase/cadastrarUsuario";
+import cadastrarClienteFirebase from "@/app/firebase/cadastrarCliente";
 import { consultarClienteFirebase } from "@/app/firebase/consultarCliente";
 import { editarClienteFirebase } from "@/app/firebase/editarCliente";
 import { Cliente } from "@/app/type/cliente";
@@ -13,6 +15,7 @@ import { validarDataNascimento } from "@/app/utils/validarDataNascimento";
 import validarEmail from "@/app/utils/validarEmail";
 import { validarTelefone } from "@/app/utils/validarTelefone";
 import { useFocusEffect } from "@react-navigation/native";
+import * as ImagePicker from "expo-image-picker";
 import { useCallback, useEffect, useState } from "react";
 import { ScrollView } from "react-native";
 
@@ -34,6 +37,7 @@ const CadastroCliente = ({ navigation, route }: any) => {
   const [ complemento, setComplemento ] = useState<string>("");
   const [ uf, setUf ] = useState<string>("");
   const [ numero, setNumero ] = useState<string>("");
+  const [ foto, setFoto ] = useState<string>("");
   const [ erroNome, setErroNome ] = useState<string>("");
   const [ erroCpf, setErroCpf ] = useState<string>("");
   const [ erroEmail, setErroEmail ] = useState<string>("");
@@ -276,7 +280,8 @@ const CadastroCliente = ({ navigation, route }: any) => {
           bairro: bairro,
           cidade: cidade,
           uf: uf
-        }
+        },
+        foto: foto
       }
 
       if (idClienteEditar === "") {
@@ -342,6 +347,7 @@ const CadastroCliente = ({ navigation, route }: any) => {
         setUf(cliente.endereco.uf);
         setGenero(cliente.genero);
         setEndereco(cliente.endereco.endereco);
+        setFoto(cliente.foto ?? "");
       } else {
         console.log("Cliente não foi encontrado na base de dados...");
       }
@@ -418,6 +424,55 @@ const CadastroCliente = ({ navigation, route }: any) => {
     erroNumero
   ]);
 
+  // solicitar permissão para tirar foto
+  const solicitarPermissaoTirarFoto = async () => {
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+
+    if (status === "granted") {
+
+      return true;
+    }
+
+    return false;
+  }
+
+  // tirar foto do cliente
+  const tirarFotoCliente = async () => {
+    setFoto("");
+
+    try {
+      const permissaoOk = await solicitarPermissaoTirarFoto();
+
+      if (permissaoOk) {
+        console.log("Tirar foto do cliente...");
+
+        const resultado = await ImagePicker.launchCameraAsync({
+          mediaTypes: ImagePicker.MediaTypeOptions.Images,
+          allowsEditing: false,
+          quality: 0.7,
+          base64: true
+        });
+
+        if (!resultado.canceled) {
+          const foto = resultado.assets[ 0 ];
+          const base64Foto: string = foto.base64 ?? "";
+
+          setFoto(base64Foto);
+
+          // apresentar alerta de sucesso para o usuário
+          console.log("Foto tirada com sucesso!");
+        }
+
+      } else {
+        console.log("É necessário dar permissão para tirar foto do cliente.");
+      }
+
+    } catch (e) {
+      console.error("Erro tirar foto cliente: " + e);
+    }
+
+  }
+
   return (
     <Tela>
       { clienteVisualizar && <TelaDadosClienteSalvar clienteApresentar={ clienteVisualizar } onRedirecionar={ () => {
@@ -428,6 +483,13 @@ const CadastroCliente = ({ navigation, route }: any) => {
         "Registrando o cliente no servidor, aguarde..." 
         : "Enviando os dados do cliente para o servidor, aguarde..." } />
       <ScrollView showsVerticalScrollIndicator={ false }>
+        <Foto fotoApresentar={ foto } />
+        { /** botão para o usuário tirar foto do cliente */ }
+        <BotaoTirarFoto
+          titulo="Tirar foto do cliente(opcional)"
+          onTirarFoto={ () => {
+            tirarFotoCliente();
+          } } />
         { /** nome do cliente */ }
         <Campo
           valor={ nome }
