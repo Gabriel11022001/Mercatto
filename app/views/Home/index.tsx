@@ -117,7 +117,7 @@ const Home = ({ navigation }: any) => {
         </View>
         <View style={ styles.containerOpcaoMenu }>
           { /** cadastrar categoria de produto */ }
-          <Pressable onPress={ () => {} } style={ ({ pressed }) => {
+          <Pressable onPress={ () => { navigation.navigate("cadastro_categoria") } } style={ ({ pressed }) => {
 
             if (pressed) {
 
@@ -132,7 +132,7 @@ const Home = ({ navigation }: any) => {
             <Text style={ styles.txtOpcao }>Cadastrar Categoria</Text>
           </Pressable>
           { /** listar categorias */ }
-          <Pressable onPress={ () => {} } style={ ({ pressed }) => {
+          <Pressable onPress={ () => { navigation.navigate("categorias") } } style={ ({ pressed }) => {
 
             if (pressed) {
 

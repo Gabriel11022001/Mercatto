@@ -12,7 +12,7 @@ const styles = StyleSheet.create({
     zIndex: 999999999,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "rgba(39, 174, 96, 0.2)",
+    backgroundColor: "rgba(39, 174, 96, 0.8)",
     padding: 20
   },
   logoLoader: {
@@ -20,7 +20,7 @@ const styles = StyleSheet.create({
     height: 200
   },
   txtLoader: {
-    color: config.cores.find(c => c.nomeCor === "primaria")?.cor ?? "#000",
+    color: config.cores.find(c => c.nomeCor === "branco")?.cor ?? "#fff",
     fontWeight: "bold",
     textAlign: "center",
     marginTop: 10,

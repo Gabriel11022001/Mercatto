@@ -3,6 +3,8 @@ import AntDesign from '@expo/vector-icons/AntDesign';
 import Feather from '@expo/vector-icons/Feather';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { Picker } from '@react-native-picker/picker';
 import { Image, Text, TextInput, TouchableOpacity, View } from "react-native";
 import styles from "./styles";
@@ -21,7 +23,9 @@ export enum TipoCampo {
   complemento,
   multiploSeletorEndereco,
   multiploSeletorGenero,
-  cpf
+  multiploSeletorPadrao,
+  cpf,
+  nomeCategoria
 
 }
 
@@ -95,6 +99,16 @@ const Campo = ({
     if (tipoCampo === TipoCampo.multiploSeletorGenero) {
 
       return <FontAwesome name="transgender" size={ 24 } color={ corIcones } />;
+    }
+
+    if (tipoCampo === TipoCampo.multiploSeletorPadrao) {
+
+      return <MaterialCommunityIcons name="list-status" size={ 24 } color={ corIcones } />
+    }
+
+    if (tipoCampo === TipoCampo.nomeCategoria) {
+
+      return <MaterialIcons name="category" size={ 24 } color={ corIcones } />;
     }
 
     return null;
@@ -175,7 +189,7 @@ const Campo = ({
       .replace(/(\d{2})(\d)/, '$1/$2');
   }
 
-  if (tipoCampo === TipoCampo.multiploSeletorEndereco || tipoCampo === TipoCampo.multiploSeletorGenero) {
+  if (tipoCampo === TipoCampo.multiploSeletorEndereco || tipoCampo === TipoCampo.multiploSeletorGenero || tipoCampo === TipoCampo.multiploSeletorPadrao) {
 
     return <View style={ styles.containerCampo }>
       <View style={ {

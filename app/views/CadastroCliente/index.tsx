@@ -254,7 +254,7 @@ const CadastroCliente = ({ navigation, route }: any) => {
 
   }, []);
 
-  const apresentarAlertaSucessoSalvarUsuario = (cliente: Cliente): void => {
+  const apresentarAlertaSucessoSalvarCliente = (cliente: Cliente): void => {
     setClienteVisualizar(cliente);
   }
 
@@ -290,14 +290,14 @@ const CadastroCliente = ({ navigation, route }: any) => {
         const resp = await cadastrarClienteFirebase(cliente);
 
         // apresentar alerta
-        apresentarAlertaSucessoSalvarUsuario(resp);
+        apresentarAlertaSucessoSalvarCliente(resp);
       } else {
         // editar o cliente
         console.log("Editar cliente...");
 
         const resp = await editarClienteFirebase(cliente);
 
-        apresentarAlertaSucessoSalvarUsuario(resp);
+        apresentarAlertaSucessoSalvarCliente(resp);
       }
       
     } catch (e) {
