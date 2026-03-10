@@ -13,16 +13,17 @@ interface Props {
   onDeletar: () => void;
   onEditar: () => void;
   onVisualizar: () => void;
+  onAlterarStatus: () => void;
 
 }
 
 // componente que representa a categoria do produto
-export const CategoriasItem = ({ categoria, onDeletar, onVisualizar, onEditar }: Props) => {
+export const CategoriasItem = ({ categoria, onDeletar, onVisualizar, onEditar, onAlterarStatus }: Props) => {
 
   const [ apresentarOperacoes, setApresentarOperacoes ] = useState<boolean>(false);
 
   return <View style={ styles.item }>
-    <View>
+    <View style={ styles.containerDadosCategoria }>
       <Text style={ styles.nomeCategoria }>{ categoria.nomeCategoria }</Text>
       <Status status={ categoria.status ? StatusItem.ativo : StatusItem.inativo } />
     </View>
@@ -30,6 +31,7 @@ export const CategoriasItem = ({ categoria, onDeletar, onVisualizar, onEditar }:
       <Operacao titulo="Visualizar" executarOperacao={ onVisualizar } tipoOperacao={ TipoOperacao.visualizar } />
       <Operacao titulo="Editar" executarOperacao={ onEditar } tipoOperacao={ TipoOperacao.editar } />
       <Operacao titulo="Deletar" executarOperacao={ onDeletar } tipoOperacao={ TipoOperacao.deletar } />
+      <Operacao titulo={ categoria.status ? "Desabilitar" : "Habilitar" } executarOperacao={ onAlterarStatus } tipoOperacao={ TipoOperacao.editar } />
     </View> }
     <View>
       <TouchableOpacity onPress={ () => setApresentarOperacoes(!apresentarOperacoes) }>

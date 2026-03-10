@@ -2,7 +2,8 @@ import BotaoPadrao from "@/app/components/BotaoPadrao";
 import Campo, { TipoCampo } from "@/app/components/Campo";
 import Loader from "@/app/components/Loader";
 import Tela from "@/app/components/Tela";
-import { cadastrarCategoriaFirebase } from "@/app/firebase/gestaoCategoria";
+import { buscarCategoriaPeloIdFirebase, cadastrarCategoriaFirebase, editarCategoriaFirebase } from "@/app/firebase/gestaoCategoria";
+import CategoriaProduto from "@/app/type/categoriaProduto";
 import { apresentarAlerta, TipoAlerta } from "@/app/utils/apresentarAlertas";
 import { useFocusEffect } from "@react-navigation/native";
 import { useCallback, useState } from "react";
@@ -27,10 +28,22 @@ const CadastroCategoria = ({ navigation, route }: any) => {
 
   }
 
+  const preencherCamposDadosCategoria = ({ nomeCategoria, status }: CategoriaProduto): void => {
+    setNomeCategoria(nomeCategoria);
+    setStatus(status);
+  }
+
   // buscar categoria pelo id
   const buscarCategoriaPeloId = async (idCategoria: string) => {
 
     try {
+      const categoria = await buscarCategoriaPeloIdFirebase(idCategoria);
+
+      if (categoria) {
+        preencherCamposDadosCategoria(categoria);
+      } else {
+        apresentarAlerta("Não foi possível encontrar essa categoria na base de dados.", TipoAlerta.erro);
+      }
 
     } catch (e) {
       // apresentar alerta de erro para o usuário
@@ -68,6 +81,20 @@ const CadastroCategoria = ({ navigation, route }: any) => {
 
   // editar categoria do produto
   const editar = async () => {
+
+    try {
+      setCarregando(true);
+
+      await editarCategoriaFirebase({ id: categoriaEditarId ?? "", nomeCategoria: nomeCategoria.trim(), status: status });
+      
+      apresentarAlerta("Categoria salva com sucesso.", TipoAlerta.sucesso);
+    } catch (e) {
+      console.error(`Erro ao tentar-se editar a categoria: ${ e }`);
+
+      apresentarAlerta("Erro ao tentar-se editar a categoria.", TipoAlerta.erro);
+    } finally {
+      setCarregando(false);
+    }
 
   }
 

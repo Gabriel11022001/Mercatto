@@ -19,11 +19,16 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between"
   },
+  containerDadosCategoria: {
+    flex: 1,
+    flexDirection: "column"
+  },
   nomeCategoria: {
     fontSize: 16,
     fontWeight: "bold",
     color: config.cores.find(c => c.nomeCor === "primaria")?.cor ?? "#000",
-    marginBottom: 6
+    marginBottom: 6,
+    textTransform: "uppercase"
   },
   dado: {
     color: config.cores.find(c => c.nomeCor === "texto")?.cor ?? "#000",

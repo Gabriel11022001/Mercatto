@@ -24,6 +24,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     flex: 1
   },
+  containerDadosCliente: {
+    flex: 1,
+    flexDirection: "column"
+  },
   foto: {
     width: 80,
     height: 80,
@@ -34,7 +38,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
     color: config.cores.find(c => c.nomeCor === "primaria")?.cor ?? "#000",
-    marginBottom: 6
+    marginBottom: 6,
+    textTransform: "uppercase"
   },
   dado: {
     color: config.cores.find(c => c.nomeCor === "texto")?.cor ?? "#000",

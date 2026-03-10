@@ -32,6 +32,8 @@ export const apresentarAlerta = (msg: string, tipo: TipoAlerta) => {
     text2Style: {
       color: config.cores.find(c => c.nomeCor === "texto")?.cor ?? "#000",
       fontSize: 15
-    }
+    },
+    autoHide: true,
+    visibilityTime: 3000
   });
 }

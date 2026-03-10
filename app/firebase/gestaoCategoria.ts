@@ -1,5 +1,5 @@
 import { db } from "@/firebase_config";
-import { addDoc, collection, getDocs } from "firebase/firestore";
+import { addDoc, collection, doc, getDoc, getDocs, updateDoc } from "firebase/firestore";
 import CategoriaProduto from "../type/categoriaProduto";
 
 // cadastrar categoria de produto no firebase
@@ -57,9 +57,44 @@ export const listarCategoriasFirebase = async () => {
 // alterar o status da categoria do produto no firebase
 export const alterarStatusCategoriaFirebase = async (id: string, novoStatus: boolean) => {
 
+  try {
+    const docRef = doc(db, "categorias_produtos", id);
+
+    await updateDoc(docRef, {
+      status: novoStatus
+    });
+
+    console.log("Status da categoria altetado com sucesso.");
+  } catch (e) {
+
+    throw e;
+  }
+
 }
 
 // buscar categoria pelo id no firebase
 export const buscarCategoriaPeloIdFirebase = async (id: string) => {
+
+  try {
+    const categoriaRef = doc(db, "categorias_produtos", id);
+    const snapshot = await getDoc(categoriaRef);
+
+    if (snapshot.exists()) {
+      const categoria: CategoriaProduto = {
+        id: snapshot.id ?? "",
+        nomeCategoria: snapshot.data().nome_categoria,
+        status: snapshot.data().status
+      }
+
+      return categoria;
+    } else {
+    
+      return null
+    }
+
+  } catch (e) {
+
+    throw e;
+  }
 
 }

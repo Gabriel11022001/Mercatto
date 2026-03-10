@@ -27,7 +27,7 @@ const ClienteItem = ({ cliente, onDeletar, onEditar, onVisualizar }: Props) => {
       <Image
         style={ styles.foto }
         source={ foto != null && foto != "" ? { uri: `data:image/jpeg;base64,${ foto }` } : require("@/assets/images/imagem_vazia.png") } />
-      <View>
+      <View style={ styles.containerDadosCliente }>
         <Text style={ styles.nomeCliente }>{ nome }</Text>
         <Text style={ styles.dado }>{ cpf }</Text>
         <Text style={ styles.dado }>{ email }</Text>
