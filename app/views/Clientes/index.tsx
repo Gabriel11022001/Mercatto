@@ -5,6 +5,7 @@ import Tela from "@/app/components/Tela";
 import deletarClienteFirebase from "@/app/firebase/deletarCliente";
 import listarClientesFirebase from "@/app/firebase/listarClientes";
 import { Cliente } from "@/app/type/cliente";
+import { apresentarAlerta, TipoAlerta } from "@/app/utils/apresentarAlertas";
 import { config } from "@/config";
 import { useFocusEffect } from "@react-navigation/native";
 import { useCallback, useState } from "react";
@@ -47,12 +48,15 @@ const Clientes = ({ navigation }: any) => {
       await deletarClienteFirebase(idClienteDeletar);
 
       // apresentar alerta de sucesso para o usuário
+      apresentarAlerta("Cliente deletado com sucesso.", TipoAlerta.sucesso);
 
       // listar os clientes novamente
       await listarClientes();
     } catch (e) {
       // apresentar alerta de erro para o usuário
       console.error("Erro ao tentar-se deletar o cliente: " + e);
+
+      apresentarAlerta("Erro na deleção de cliente.", TipoAlerta.erro);
     } finally {
       setCarregando(false);
     }

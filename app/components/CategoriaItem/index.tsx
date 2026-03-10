@@ -27,16 +27,16 @@ export const CategoriasItem = ({ categoria, onDeletar, onVisualizar, onEditar, o
       <Text style={ styles.nomeCategoria }>{ categoria.nomeCategoria }</Text>
       <Status status={ categoria.status ? StatusItem.ativo : StatusItem.inativo } />
     </View>
+    <View>
+      <TouchableOpacity onPress={ () => setApresentarOperacoes(!apresentarOperacoes) }>
+        <Entypo name="dots-three-vertical" size={ 30 } color={ config.cores.find(c => c.nomeCor === "texto")?.cor ?? "#000" } />
+      </TouchableOpacity>
+    </View>
     { apresentarOperacoes && <View style={ styles.containerOperacoes }>
       <Operacao titulo="Visualizar" executarOperacao={ onVisualizar } tipoOperacao={ TipoOperacao.visualizar } />
       <Operacao titulo="Editar" executarOperacao={ onEditar } tipoOperacao={ TipoOperacao.editar } />
       <Operacao titulo="Deletar" executarOperacao={ onDeletar } tipoOperacao={ TipoOperacao.deletar } />
       <Operacao titulo={ categoria.status ? "Desabilitar" : "Habilitar" } executarOperacao={ onAlterarStatus } tipoOperacao={ TipoOperacao.editar } />
     </View> }
-    <View>
-      <TouchableOpacity onPress={ () => setApresentarOperacoes(!apresentarOperacoes) }>
-        <Entypo name="dots-three-vertical" size={ 30 } color={ config.cores.find(c => c.nomeCor === "texto")?.cor ?? "#000" } />
-      </TouchableOpacity>
-    </View>
   </View>
 }

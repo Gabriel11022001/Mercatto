@@ -31,19 +31,19 @@ const ClienteItem = ({ cliente, onDeletar, onEditar, onVisualizar }: Props) => {
         <Text style={ styles.nomeCliente }>{ nome }</Text>
         <Text style={ styles.dado }>{ cpf }</Text>
         <Text style={ styles.dado }>{ email }</Text>
-        <Text style={ styles.dado }>{ email }</Text>
+        <Text style={ styles.dado }>{ telefone }</Text>
       </View>
+    </View>
+    <View>
+      <TouchableOpacity onPress={ () => setApresentarOperacoes(!apresentarOperacoes) }>
+        <Entypo name="dots-three-vertical" size={ 30 } color={ config.cores.find(c => c.nomeCor === "texto")?.cor ?? "#000" } />
+      </TouchableOpacity>
     </View>
     { apresentarOperacoes && <View style={ styles.containerOperacoes }>
       <Operacao titulo="Visualizar" executarOperacao={ onVisualizar } tipoOperacao={ TipoOperacao.visualizar } />
       <Operacao titulo="Editar" executarOperacao={ onEditar } tipoOperacao={ TipoOperacao.editar } />
       <Operacao titulo="Deletar" executarOperacao={ onDeletar } tipoOperacao={ TipoOperacao.deletar } />
     </View> }
-    <View>
-      <TouchableOpacity onPress={ () => setApresentarOperacoes(!apresentarOperacoes) }>
-        <Entypo name="dots-three-vertical" size={ 30 } color={ config.cores.find(c => c.nomeCor === "texto")?.cor ?? "#000" } />
-      </TouchableOpacity>
-    </View>
   </View>
 }
 

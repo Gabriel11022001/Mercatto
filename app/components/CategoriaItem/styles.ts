@@ -17,7 +17,8 @@ const styles = StyleSheet.create({
     paddingTop: 10,
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between"
+    justifyContent: "space-between",
+    flexWrap: "wrap"
   },
   containerDadosCategoria: {
     flex: 1,
@@ -36,7 +37,6 @@ const styles = StyleSheet.create({
     marginTop: 4
   },
   containerOperacoes: {
-    position: "absolute",
     backgroundColor: config.cores.find(c => c.nomeCor === "branco")?.cor ?? "#fff",
     padding: 10,
     borderRadius: 10,
@@ -45,11 +45,9 @@ const styles = StyleSheet.create({
     borderStyle: "solid",
     flexDirection: "column",
     alignItems: "flex-start",
-    width: 140,
-    elevation: 3,
-    right: 9,
-    zIndex: 99999,
-    top: 83
+    width: "100%",
+    elevation: 10,
+    marginTop: 30
   }
   
 });
