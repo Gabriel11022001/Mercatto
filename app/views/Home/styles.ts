@@ -9,7 +9,8 @@ const styles = StyleSheet.create({
     marginEnd: "5%",
     marginTop: 30,
     flexDirection: "row",
-    alignItems: "center"
+    alignItems: "center",
+    flexWrap: "wrap"
   },
   txtSejaBemVindo: {
     color: config.cores.find(cor => cor.nomeCor === "primaria")?.cor ?? "#000",

@@ -1,5 +1,6 @@
 import Tela from "@/app/components/Tela";
 import TopoTela from "@/app/components/TopoTela";
+import { apresentarAlerta, TipoAlerta } from "@/app/utils/apresentarAlertas";
 import { config } from "@/config";
 import AntDesign from '@expo/vector-icons/AntDesign';
 import Feather from '@expo/vector-icons/Feather';
@@ -9,6 +10,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import SimpleLineIcons from '@expo/vector-icons/SimpleLineIcons';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
 import { useCallback, useState } from "react";
 import { Image, Pressable, ScrollView, Text, View } from "react-native";
@@ -26,6 +28,8 @@ const Home = ({ navigation }: any) => {
 
     try {
       setCarregando(true);
+
+      navigation.replace("login");
     } catch (e) {
 
     } finally {
@@ -35,6 +39,24 @@ const Home = ({ navigation }: any) => {
   }
 
   const obterNomeUsuarioLogado = async () => {
+
+    try {
+      const usuarioLogadoString = await AsyncStorage.getItem("@usuario_logado");
+
+      if (usuarioLogadoString != null) {
+        const usuarioLogadoObj = JSON.parse(usuarioLogadoString);
+
+        setUsuarioLogado(usuarioLogadoObj.nome ?? "");
+      } else {
+
+        throw Error();
+      }
+
+    } catch (e) {
+      console.error(`Erro ao tentar-se obter o nome do usuário logado: ${ e }`);
+
+      apresentarAlerta("Erro obter usuário logado.", TipoAlerta.erro);
+    }
 
   }
 

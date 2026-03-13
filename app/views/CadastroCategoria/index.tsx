@@ -77,8 +77,7 @@ const CadastroCategoria = ({ navigation, route }: any) => {
 
       apresentarAlerta("Categoria cadastrada com sucesso.", TipoAlerta.sucesso);
 
-      setNomeCategoria("");
-      setStatus(true);
+      navigation.goBack();
     } catch (e) {
       console.error(`Erro ao tentar-se cadastrar a categoria: ${ e }`);
 
@@ -108,6 +107,8 @@ const CadastroCategoria = ({ navigation, route }: any) => {
       await editarCategoriaFirebase({ id: categoriaEditarId ?? "", nomeCategoria: nomeCategoria.trim(), status: status });
       
       apresentarAlerta("Categoria salva com sucesso.", TipoAlerta.sucesso);
+      
+      navigation.goBack();
     } catch (e) {
       console.error(`Erro ao tentar-se editar a categoria: ${ e }`);
 

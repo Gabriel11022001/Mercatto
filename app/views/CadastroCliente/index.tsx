@@ -4,7 +4,6 @@ import Campo, { TipoCampo } from "@/app/components/Campo";
 import Foto from "@/app/components/Foto";
 import Loader from "@/app/components/Loader";
 import Tela from "@/app/components/Tela";
-import TelaDadosClienteSalvar from "@/app/components/TelaDadosClienteSalvar";
 import { buscarClientePeloCpfFirebase } from "@/app/firebase/buscarCliente";
 import cadastrarClienteFirebase from "@/app/firebase/cadastrarCliente";
 import { consultarClienteFirebase } from "@/app/firebase/consultarCliente";
@@ -256,10 +255,6 @@ const CadastroCliente = ({ navigation, route }: any) => {
 
   }, []);
 
-  const apresentarAlertaSucessoSalvarCliente = (cliente: Cliente): void => {
-    setClienteVisualizar(cliente);
-  }
-
   // salvar o cliente(cadastrar/editar)
   const salvar = async () => {
     
@@ -300,10 +295,10 @@ const CadastroCliente = ({ navigation, route }: any) => {
 
         console.log("Cadastrando cliente na base de dados...");
         // cadastrar o cliente
-        const resp = await cadastrarClienteFirebase(cliente);
+        await cadastrarClienteFirebase(cliente);
 
         // apresentar alerta
-        apresentarAlertaSucessoSalvarCliente(resp);
+        apresentarAlerta("Cliente cadastrado com sucesso.", TipoAlerta.sucesso);
       } else {
 
         if (clienteMesmoCpf && clienteMesmoCpf.id != idClienteEditar) {
@@ -317,21 +312,21 @@ const CadastroCliente = ({ navigation, route }: any) => {
         // editar o cliente
         console.log("Editar cliente...");
 
-        const resp = await editarClienteFirebase(cliente);
+        await editarClienteFirebase(cliente);
 
-        apresentarAlertaSucessoSalvarCliente(resp);
+        apresentarAlerta("Cliente salvo com sucesso.", TipoAlerta.sucesso);
       }
       
+      // retornar para a tela de listagem de clientes
+      navigation.goBack();
     } catch (e) {
+      console.error(`Erro ao tentar-se salvar o cliente: ${ e }`);
 
+      apresentarAlerta("Erro ao tentar-se salvar o cliente.", TipoAlerta.erro);
     } finally {
       setCarregando(false);
     }
 
-  }
-
-  const redirecionarUsuarioListagemClientes = (): void => {
-    navigation.navigate("clientes");
   }
 
   // consultar endereço do cliente pelo cep
@@ -497,10 +492,6 @@ const CadastroCliente = ({ navigation, route }: any) => {
 
   return (
     <Tela>
-      { clienteVisualizar && <TelaDadosClienteSalvar clienteApresentar={ clienteVisualizar } onRedirecionar={ () => {
-        // redirecionar o usuário para a tela com a listagem dos clientes cadastrados
-        redirecionarUsuarioListagemClientes();
-      } } /> }
       <Loader carregando={ carregando } msg={ idClienteEditar == "" ? 
         "Registrando o cliente no servidor, aguarde..." 
         : "Enviando os dados do cliente para o servidor, aguarde..." } />

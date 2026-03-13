@@ -2,7 +2,9 @@ import BotaoPadrao from "@/app/components/BotaoPadrao";
 import Campo, { TipoCampo } from "@/app/components/Campo";
 import Loader from "@/app/components/Loader";
 import Tela from "@/app/components/Tela";
-import { useState } from "react";
+import validarEmail from "@/app/utils/validarEmail";
+import { useFocusEffect } from "@react-navigation/native";
+import { useCallback, useState } from "react";
 import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { styles } from "./styles";
 
@@ -25,6 +27,8 @@ const Login = ({ navigation }: any) => {
       .length === 0
     ) {
       setErroEmail("Informe o e-mail");
+    } else if (!validarEmail(email.trim())) {
+      setErroEmail("Informe um e-mail inválido.");
     }
 
   }
@@ -47,7 +51,7 @@ const Login = ({ navigation }: any) => {
     setCarregando(true);
 
     try {
-      navigation.navigate("home");
+      console.log("Efetuando login...");
     } catch (e) {
 
     } finally {
@@ -55,6 +59,20 @@ const Login = ({ navigation }: any) => {
     }
 
   }
+
+  useFocusEffect(useCallback(() => {
+
+    try {
+      setEmail("");
+      setSenha("");
+      setErroEmail("");
+      setErroSenha("");
+      setSenhaVisivel(false);
+    } catch (e) {
+
+    }
+
+  }, []));
 
   return (
     <Tela>
