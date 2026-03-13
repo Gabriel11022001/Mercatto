@@ -2,7 +2,7 @@ import BotaoPadrao from "@/app/components/BotaoPadrao";
 import Campo, { TipoCampo } from "@/app/components/Campo";
 import Loader from "@/app/components/Loader";
 import Tela from "@/app/components/Tela";
-import { buscarCategoriaPeloIdFirebase, cadastrarCategoriaFirebase, editarCategoriaFirebase } from "@/app/firebase/gestaoCategoria";
+import { buscarCategoriaPeloIdFirebase, buscarCategoriaPeloNomeFirebase, cadastrarCategoriaFirebase, editarCategoriaFirebase } from "@/app/firebase/gestaoCategoria";
 import CategoriaProduto from "@/app/type/categoriaProduto";
 import { apresentarAlerta, TipoAlerta } from "@/app/utils/apresentarAlertas";
 import { useFocusEffect } from "@react-navigation/native";
@@ -60,6 +60,16 @@ const CadastroCategoria = ({ navigation, route }: any) => {
     try {
       setCarregando(true);
 
+      const categoriaCadastradaMesmoNome: CategoriaProduto | null = await buscarCategoriaPeloNomeFirebase(nomeCategoria);
+
+      if (categoriaCadastradaMesmoNome) {
+        setCarregando(false);
+
+        apresentarAlerta("Informe outro nome.", TipoAlerta.erro);
+
+        return;
+      }
+
       await cadastrarCategoriaFirebase({
         nomeCategoria: nomeCategoria.trim(),
         status: status
@@ -84,7 +94,17 @@ const CadastroCategoria = ({ navigation, route }: any) => {
 
     try {
       setCarregando(true);
+      
+      const categoriaMesmoNome: CategoriaProduto | null = await buscarCategoriaPeloNomeFirebase(nomeCategoria);
 
+      if (categoriaMesmoNome && categoriaMesmoNome.id != categoriaEditarId) {
+        setCarregando(false);
+
+        apresentarAlerta("Informe outro nome.", TipoAlerta.erro);
+
+        return;
+      }
+      
       await editarCategoriaFirebase({ id: categoriaEditarId ?? "", nomeCategoria: nomeCategoria.trim(), status: status });
       
       apresentarAlerta("Categoria salva com sucesso.", TipoAlerta.sucesso);

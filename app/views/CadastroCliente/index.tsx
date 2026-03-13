@@ -5,10 +5,12 @@ import Foto from "@/app/components/Foto";
 import Loader from "@/app/components/Loader";
 import Tela from "@/app/components/Tela";
 import TelaDadosClienteSalvar from "@/app/components/TelaDadosClienteSalvar";
+import { buscarClientePeloCpfFirebase } from "@/app/firebase/buscarCliente";
 import cadastrarClienteFirebase from "@/app/firebase/cadastrarCliente";
 import { consultarClienteFirebase } from "@/app/firebase/consultarCliente";
 import { editarClienteFirebase } from "@/app/firebase/editarCliente";
 import { Cliente } from "@/app/type/cliente";
+import { apresentarAlerta, TipoAlerta } from "@/app/utils/apresentarAlertas";
 import { validarCep } from "@/app/utils/validarCep";
 import validarCpf from "@/app/utils/validarCpf";
 import { validarDataNascimento } from "@/app/utils/validarDataNascimento";
@@ -284,7 +286,18 @@ const CadastroCliente = ({ navigation, route }: any) => {
         foto: foto
       }
 
+      const clienteMesmoCpf: Cliente | null = await buscarClientePeloCpfFirebase(cliente.cpf);
+
       if (idClienteEditar === "") {
+
+        if (clienteMesmoCpf) {
+          setCarregando(false);
+
+          apresentarAlerta("Informe outro cpf.", TipoAlerta.erro);
+
+          return;
+        }
+
         console.log("Cadastrando cliente na base de dados...");
         // cadastrar o cliente
         const resp = await cadastrarClienteFirebase(cliente);
@@ -292,6 +305,15 @@ const CadastroCliente = ({ navigation, route }: any) => {
         // apresentar alerta
         apresentarAlertaSucessoSalvarCliente(resp);
       } else {
+
+        if (clienteMesmoCpf && clienteMesmoCpf.id != idClienteEditar) {
+          setCarregando(false);
+
+          apresentarAlerta("Informe outro cpf.", TipoAlerta.erro);
+
+          return;
+        }
+
         // editar o cliente
         console.log("Editar cliente...");
 

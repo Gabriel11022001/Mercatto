@@ -1,5 +1,5 @@
 import { db } from "@/firebase_config";
-import { addDoc, collection, doc, getDoc, getDocs, updateDoc } from "firebase/firestore";
+import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, query, updateDoc, where } from "firebase/firestore";
 import CategoriaProduto from "../type/categoriaProduto";
 
 // cadastrar categoria de produto no firebase
@@ -92,6 +92,49 @@ export const buscarCategoriaPeloIdFirebase = async (id: string) => {
       return null
     }
 
+  } catch (e) {
+
+    throw e;
+  }
+
+}
+
+// deletar categoria no firebase
+export const deletarCategoriaFirebase = async (idCategoriaDeletar: string) => {
+
+  try {
+    await deleteDoc(doc(db, "categorias_produtos", idCategoriaDeletar));
+
+    console.log("Categoria deletada com sucesso.");
+  } catch (e) {
+
+    throw e;
+  }
+
+}
+
+// buscar categoria pelo nome no firebase
+export const buscarCategoriaPeloNomeFirebase = async (nome: string) => {
+
+  try {
+    const queryConsultarCategoria = query(
+      collection(db, "categorias_produtos"),
+      where("nome_categoria", "==", nome.trim())
+    );
+
+    const querySnapshot = await getDocs(queryConsultarCategoria);
+
+    let categoria: CategoriaProduto | null = null;
+
+    if (!querySnapshot.empty) {
+      categoria = {
+        id: querySnapshot.docs[ 0 ].id ?? "",
+        nomeCategoria: querySnapshot.docs[ 0 ].data().nome_categoria,
+        status: querySnapshot.docs[ 0 ].data().status
+      };
+    }
+
+    return categoria;
   } catch (e) {
 
     throw e;

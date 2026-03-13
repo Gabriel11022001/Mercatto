@@ -2,7 +2,7 @@ import AlertaNaoExistemDados from "@/app/components/AlertaNaoExistemDados";
 import { CategoriasItem } from "@/app/components/CategoriaItem";
 import Loader from "@/app/components/Loader";
 import Tela from "@/app/components/Tela";
-import { alterarStatusCategoriaFirebase, listarCategoriasFirebase } from "@/app/firebase/gestaoCategoria";
+import { alterarStatusCategoriaFirebase, deletarCategoriaFirebase, listarCategoriasFirebase } from "@/app/firebase/gestaoCategoria";
 import CategoriaProduto from "@/app/type/categoriaProduto";
 import { apresentarAlerta, TipoAlerta } from "@/app/utils/apresentarAlertas";
 import { config } from "@/config";
@@ -39,8 +39,16 @@ const Categorias = ({ navigation }: any) => {
 
     try {
       console.log("Deletando a categoria...");
+
+      await deletarCategoriaFirebase(categoria.id ?? "");
+
+      apresentarAlerta("Categoria deletada com sucesso.", TipoAlerta.sucesso);
+
+      await listarCategorias();
     } catch (e) {
       console.error(`Erro ao tentar-se deletar a categoria: ${ e }`);
+      
+      apresentarAlerta("Erro ao tentar-se deletar a categoria.", TipoAlerta.erro);
     } finally {
       setCarregando(false);
     }
