@@ -6,6 +6,7 @@ import deletarClienteFirebase from "@/app/firebase/deletarCliente";
 import listarClientesFirebase from "@/app/firebase/listarClientes";
 import { Cliente } from "@/app/type/cliente";
 import { apresentarAlerta, TipoAlerta } from "@/app/utils/apresentarAlertas";
+import validarSecaoUsuario from "@/app/utils/validarSecaoUsuario";
 import { config } from "@/config";
 import { useFocusEffect } from "@react-navigation/native";
 import { useCallback, useState } from "react";
@@ -68,6 +69,7 @@ const Clientes = ({ navigation }: any) => {
   }
 
   useFocusEffect(useCallback(() => {
+    validarSecaoUsuario(navigation);
     listarClientes();
   }, []));
 

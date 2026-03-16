@@ -2,6 +2,7 @@ import Loader from "@/app/components/Loader";
 import Tela from "@/app/components/Tela";
 import TopoTela from "@/app/components/TopoTela";
 import { apresentarAlerta, TipoAlerta } from "@/app/utils/apresentarAlertas";
+import validarSecaoUsuario from "@/app/utils/validarSecaoUsuario";
 import { config } from "@/config";
 import AntDesign from '@expo/vector-icons/AntDesign';
 import Feather from '@expo/vector-icons/Feather';
@@ -70,6 +71,7 @@ const Home = ({ navigation }: any) => {
   }
 
   useFocusEffect(useCallback(() => {
+    validarSecaoUsuario(navigation);
     obterNomeUsuarioLogado();
   }, []));
 

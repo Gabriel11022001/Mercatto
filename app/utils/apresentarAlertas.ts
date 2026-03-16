@@ -4,7 +4,8 @@ import Toast from "react-native-toast-message";
 export enum TipoAlerta {
 
   erro,
-  sucesso
+  sucesso,
+  aviso
 
 }
 
@@ -15,6 +16,11 @@ const getTipoAlerta = (tipo: TipoAlerta) => {
     return "error";
   }
 
+  if (tipo === TipoAlerta.aviso) {
+
+    return "info";
+  }
+
   return "success";
 }
 
@@ -22,7 +28,7 @@ const getTipoAlerta = (tipo: TipoAlerta) => {
 export const apresentarAlerta = (msg: string, tipo: TipoAlerta) => {
   Toast.show({
     type: getTipoAlerta(tipo),
-    text1: tipo === TipoAlerta.erro ? "Atenção!" : "Sucesso!",
+    text1: tipo === TipoAlerta.erro || TipoAlerta.aviso ? "Atenção!" : "Sucesso!",
     text2: msg,
     position: "bottom",
     text1Style: {

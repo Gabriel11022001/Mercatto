@@ -5,6 +5,7 @@ import Tela from "@/app/components/Tela";
 import { buscarCategoriaPeloIdFirebase, buscarCategoriaPeloNomeFirebase, cadastrarCategoriaFirebase, editarCategoriaFirebase } from "@/app/firebase/gestaoCategoria";
 import CategoriaProduto from "@/app/type/categoriaProduto";
 import { apresentarAlerta, TipoAlerta } from "@/app/utils/apresentarAlertas";
+import validarSecaoUsuario from "@/app/utils/validarSecaoUsuario";
 import { useFocusEffect } from "@react-navigation/native";
 import { useCallback, useState } from "react";
 import { ScrollView } from "react-native";
@@ -133,7 +134,8 @@ const CadastroCategoria = ({ navigation, route }: any) => {
   }
 
   useFocusEffect(useCallback(() => {
-
+    validarSecaoUsuario(navigation);
+    
     if (route.params) {
 
       if (route.params.idCategoriaEditar) {

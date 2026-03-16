@@ -5,6 +5,7 @@ import Tela from "@/app/components/Tela";
 import { alterarStatusCategoriaFirebase, deletarCategoriaFirebase, listarCategoriasFirebase } from "@/app/firebase/gestaoCategoria";
 import CategoriaProduto from "@/app/type/categoriaProduto";
 import { apresentarAlerta, TipoAlerta } from "@/app/utils/apresentarAlertas";
+import validarSecaoUsuario from "@/app/utils/validarSecaoUsuario";
 import { config } from "@/config";
 import { useFocusEffect } from "@react-navigation/native";
 import { useCallback, useState } from "react";
@@ -88,6 +89,7 @@ const Categorias = ({ navigation }: any) => {
   }
   
   useFocusEffect(useCallback(() => {
+    validarSecaoUsuario(navigation);
     listarCategorias();
   }, []));
 

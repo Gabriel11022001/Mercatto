@@ -14,6 +14,7 @@ import { validarCep } from "@/app/utils/validarCep";
 import validarCpf from "@/app/utils/validarCpf";
 import { validarDataNascimento } from "@/app/utils/validarDataNascimento";
 import validarEmail from "@/app/utils/validarEmail";
+import validarSecaoUsuario from "@/app/utils/validarSecaoUsuario";
 import { validarTelefone } from "@/app/utils/validarTelefone";
 import { useFocusEffect } from "@react-navigation/native";
 import * as ImagePicker from "expo-image-picker";
@@ -378,6 +379,7 @@ const CadastroCliente = ({ navigation, route }: any) => {
   }
 
   useFocusEffect(useCallback(() => {
+    validarSecaoUsuario(navigation);
 
     if (route.params) {
       setIdClienteEditar(route.params.idClienteEditar);
