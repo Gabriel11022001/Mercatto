@@ -2,7 +2,14 @@ import BotaoPadrao from "@/app/components/BotaoPadrao";
 import Campo, { TipoCampo } from "@/app/components/Campo";
 import Loader from "@/app/components/Loader";
 import Tela from "@/app/components/Tela";
+import { buscarUsuarioPeloEmailSenha } from "@/app/firebase/gestaoUsuario";
+import { Usuario } from "@/app/type/usuario";
+import { apresentarAlerta, TipoAlerta } from "@/app/utils/apresentarAlertas";
+import obterDataAcrescidoMinutos from "@/app/utils/obterDataAcrescidoMinutos";
+import obterDataAtual from "@/app/utils/obterDataAtual";
+import obterDataFormatada from "@/app/utils/obterDataFormatada";
 import validarEmail from "@/app/utils/validarEmail";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
 import { useCallback, useState } from "react";
 import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
@@ -52,6 +59,84 @@ const Login = ({ navigation }: any) => {
 
     try {
       console.log("Efetuando login...");
+
+      const usuarioLogin: Usuario | null = await buscarUsuarioPeloEmailSenha(email, senha);
+
+      if (usuarioLogin != null) {
+        // encontrou o usuário na base
+        await salvarDadosUsuarioSecao(usuarioLogin);
+
+        // redirecionar o usuário para a tela home
+        navigation.replace("home");
+
+        apresentarAlerta("Login efetuado com sucesso.", TipoAlerta.sucesso);
+      } else {
+        apresentarAlerta("E-mail ou senha inválidos.", TipoAlerta.erro);
+      }
+
+    } catch (e) {
+      console.error(`Erro ao tentar-se realizar login: ${ e }`);
+      apresentarAlerta("Erro no login, tente novamente.", TipoAlerta.erro);
+    } finally {
+      setCarregando(false);
+    }
+
+  }
+
+  // salvar dados do usuário
+  const salvarDadosUsuarioSecao = async ({ id, nome, dataUltimoLogin }: Usuario) => {
+    await AsyncStorage.setItem("@usuario_logado", JSON.stringify({
+      id: id,
+      nome: nome,
+      dataDeslogar: obterDataFormatada(obterDataAcrescidoMinutos(obterDataAtual()))
+    }));
+
+    console.log("Dados do usuário salvos.");
+  }
+
+  // efetuar login automático
+  const loginAutomatico = async () => {
+
+    try {
+      setCarregando(true);
+
+      const usuarioLogadoString = await AsyncStorage.getItem("@usuario_logado");
+
+      if (usuarioLogadoString) {
+        const usuarioLogadoJson = JSON.parse(usuarioLogadoString);
+
+        if (usuarioLogadoJson) {
+          const dataDeslogar: string = usuarioLogadoJson.dataDeslogar;
+
+          const [ dataParte, horarioParte ] = dataDeslogar.trim().split(",");
+          const [ dia, mes, ano ] = dataParte.split("-");
+          const [ hora, minuto, segundo ] = horarioParte.trim().split(":");
+
+          const dataDeslogarDate: Date = new Date(
+            Number(ano),
+            Number(mes) - 1,
+            Number(dia),
+            Number(hora),
+            Number(minuto),
+            Number(segundo)
+          );
+
+          const agora: Date = new Date();
+
+          if (dataDeslogarDate <= agora) {
+            // deslogar o usuário
+            console.log("Deslogar o usuário.");
+            AsyncStorage.removeItem("@usuario_logado");
+            console.log("Deslogado com sucesso.");
+          } else {
+            // redirecionar para a home
+            navigation.replace("home");
+          }
+
+        }
+
+      }
+
     } catch (e) {
 
     } finally {
@@ -68,6 +153,8 @@ const Login = ({ navigation }: any) => {
       setErroEmail("");
       setErroSenha("");
       setSenhaVisivel(false);
+
+      loginAutomatico();
     } catch (e) {
 
     }

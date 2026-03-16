@@ -1,5 +1,5 @@
 import { db } from "@/firebase_config";
-import { addDoc, collection, doc, updateDoc } from "firebase/firestore";
+import { addDoc, collection, doc, getDocs, query, updateDoc, where } from "firebase/firestore";
 import { Usuario } from "../type/usuario";
 import obterDataAtual from "../utils/obterDataAtual";
 
@@ -38,6 +38,41 @@ export const editarDataUltimoLoginUsuario = async (usuario: Usuario) => {
     await updateDoc(docRef, {
       data_ultimo_login: usuario.dataUltimoLogin
     });
+
+    return usuario;
+  } catch (e) {
+
+    throw e;
+  }
+
+}
+
+// buscar o usuário pelo e-mail e senha
+export const buscarUsuarioPeloEmailSenha = async (email: string, senha: string) => {
+
+  try {
+    const queryConsultarUsuario = query(
+      collection(db, "usuarios"),
+      where("email", "==", email.trim()),
+      where("senha", "==", senha.trim())
+    );
+
+    const querySnapshot = await getDocs(queryConsultarUsuario);
+
+    if (querySnapshot.empty) {
+
+      return null;
+    }
+
+    const usuario: Usuario = {
+      id: querySnapshot.docs[ 0 ].id,
+      nome: querySnapshot.docs[ 0 ].data().nome,
+      email: querySnapshot.docs[ 0 ].data().email,
+      telefone: querySnapshot.docs[ 0 ].data().telefone,
+      senha: querySnapshot.docs[ 0 ].data().senha,
+      ativo: querySnapshot.docs[ 0 ].data().ativo,
+      dataUltimoLogin: querySnapshot.docs[ 0 ].data().data_ultimo_login
+    }
 
     return usuario;
   } catch (e) {

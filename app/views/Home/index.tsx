@@ -1,3 +1,4 @@
+import Loader from "@/app/components/Loader";
 import Tela from "@/app/components/Tela";
 import TopoTela from "@/app/components/TopoTela";
 import { apresentarAlerta, TipoAlerta } from "@/app/utils/apresentarAlertas";
@@ -29,13 +30,21 @@ const Home = ({ navigation }: any) => {
     try {
       setCarregando(true);
 
+      await limparSecaoUsuario();
+
       navigation.replace("login");
     } catch (e) {
+      console.error(`Erro ao tentar-se realizar logout: ${ e }`);
 
+      apresentarAlerta("Erro no logout, tente novamente.", TipoAlerta.erro);
     } finally {
       setCarregando(false);
     }
 
+  }
+
+  const limparSecaoUsuario = async () => {
+    await AsyncStorage.removeItem("@usuario_logado");
   }
 
   const obterNomeUsuarioLogado = async () => {
@@ -66,6 +75,7 @@ const Home = ({ navigation }: any) => {
 
   return (
     <Tela>
+      <Loader carregando={ carregando } />
       <ScrollView showsVerticalScrollIndicator={ false }>
         <TopoTela />
         <View style={ styles.containerBemVindo }>

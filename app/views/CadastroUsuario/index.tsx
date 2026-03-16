@@ -158,7 +158,7 @@ const CadastroUsuario = ({ navigation }: any) => {
     await AsyncStorage.setItem("@usuario_logado", JSON.stringify({
       id: id,
       nome: nome,
-      dataDeslogarFormatada
+      dataDeslogar: dataDeslogarFormatada
     }));
 
     console.log("Dados do usuário salvo em seção.");
