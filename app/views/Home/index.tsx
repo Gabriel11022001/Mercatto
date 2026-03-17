@@ -119,7 +119,7 @@ const Home = ({ navigation }: any) => {
         </View>
         <View style={ styles.containerOpcaoMenu }>
           { /** cadastrar produto */ }
-          <Pressable onPress={ () => {} } style={ ({ pressed }) => {
+          <Pressable onPress={ () => { navigation.navigate("cadastro_produto") } } style={ ({ pressed }) => {
 
             if (pressed) {
 

@@ -4,7 +4,7 @@ import Campo, { TipoCampo } from "@/app/components/Campo";
 import Foto from "@/app/components/Foto";
 import Loader from "@/app/components/Loader";
 import Tela from "@/app/components/Tela";
-import { buscarClientePeloCpfFirebase } from "@/app/firebase/buscarCliente";
+import { buscarClientePeloCpfFirebase, buscarClientePeloEmailFirebase } from "@/app/firebase/buscarCliente";
 import cadastrarClienteFirebase from "@/app/firebase/cadastrarCliente";
 import { consultarClienteFirebase } from "@/app/firebase/consultarCliente";
 import { editarClienteFirebase } from "@/app/firebase/editarCliente";
@@ -53,7 +53,6 @@ const CadastroCliente = ({ navigation, route }: any) => {
   const [ erroComplemento, setErroComplemento ] = useState<string>("");
   const [ erroUf, setErroUf ] = useState<string>("");
   const [ erroNumero, setErroNumero ] = useState<string>("");
-  const [ clienteVisualizar, setClienteVisualizar ] = useState<Cliente | null>(null);
   const [ carregandoConsultaEndereco, setCarregandoConsultaEndereco ] = useState<boolean>(false);
   const [ habilitarBotaoSalvar, setHabilitarBotaoSalvar ] = useState<boolean>(false);
  
@@ -283,6 +282,7 @@ const CadastroCliente = ({ navigation, route }: any) => {
       }
 
       const clienteMesmoCpf: Cliente | null = await buscarClientePeloCpfFirebase(cliente.cpf);
+      const clienteMesmoEmail: Cliente | null = await buscarClientePeloEmailFirebase(cliente.email);
 
       if (idClienteEditar === "") {
 
@@ -290,6 +290,14 @@ const CadastroCliente = ({ navigation, route }: any) => {
           setCarregando(false);
 
           apresentarAlerta("Informe outro cpf.", TipoAlerta.erro);
+
+          return;
+        }
+
+        if (clienteMesmoEmail) {
+          setCarregando(false);
+
+          apresentarAlerta("Informe outro e-mail.", TipoAlerta.erro);
 
           return;
         }
@@ -306,6 +314,14 @@ const CadastroCliente = ({ navigation, route }: any) => {
           setCarregando(false);
 
           apresentarAlerta("Informe outro cpf.", TipoAlerta.erro);
+
+          return;
+        }
+
+        if (clienteMesmoEmail && clienteMesmoEmail.id != idClienteEditar) {
+          setCarregando(false);
+
+          apresentarAlerta("Informe outro e-mail.", TipoAlerta.erro);
 
           return;
         }

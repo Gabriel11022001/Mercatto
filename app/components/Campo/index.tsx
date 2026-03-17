@@ -25,7 +25,8 @@ export enum TipoCampo {
   multiploSeletorGenero,
   multiploSeletorPadrao,
   cpf,
-  nomeCategoria
+  nomeCategoria,
+  preco
 
 }
 
@@ -111,6 +112,11 @@ const Campo = ({
       return <MaterialIcons name="category" size={ 24 } color={ corIcones } />;
     }
 
+    if (tipoCampo === TipoCampo.preco) {
+      
+      return <MaterialIcons name="price-change" size={ 24 } color={ corIcones } />;
+    }
+
     return null;
   }
 
@@ -189,6 +195,18 @@ const Campo = ({
       .replace(/(\d{2})(\d)/, '$1/$2');
   }
 
+  // aplicar máscara no preço
+  const aplicarMascaraPreco = (valor: string): string => {
+    const numeroLimpo = valor.replace(/\D/g, '');
+
+    const numero = parseFloat(numeroLimpo) / 100;
+
+    return numero.toLocaleString('pt-BR', {
+      style: 'currency',
+      currency: 'BRL',
+    })
+  }
+
   if (tipoCampo === TipoCampo.multiploSeletorEndereco || tipoCampo === TipoCampo.multiploSeletorGenero || tipoCampo === TipoCampo.multiploSeletorPadrao) {
 
     return <View style={ styles.containerCampo }>
@@ -256,6 +274,12 @@ const Campo = ({
 
             if (tipoCampo === TipoCampo.data) {
               alterarValor(aplicarMascaraDataNascimentoCampo(valorDigitado));
+
+              return;
+            }
+
+            if (tipoCampo === TipoCampo.preco) {
+              alterarValor(aplicarMascaraPreco(valorDigitado));
 
               return;
             }
