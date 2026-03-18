@@ -11,6 +11,7 @@ import Categorias from '../views/Categorias';
 import Clientes from '../views/Clientes';
 import Home from '../views/Home';
 import Login from '../views/Login';
+import Produtos from '../views/Produtos';
 import SplashScreen from '../views/SplashScreen';
 
 const Navigation = () => {
@@ -66,6 +67,11 @@ const Navigation = () => {
       nome: "cadastro_produto",
       componente: CadastroProduto,
       titulo: "Cadastrar Produto"
+    },
+    {
+      nome: "produtos",
+      componente: Produtos,
+      titulo: "Produtos"
     }
   ];
 

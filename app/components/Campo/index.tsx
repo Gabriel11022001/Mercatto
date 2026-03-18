@@ -26,7 +26,8 @@ export enum TipoCampo {
   multiploSeletorPadrao,
   cpf,
   nomeCategoria,
-  preco
+  preco,
+  numericoInteiro
 
 }
 
@@ -127,7 +128,7 @@ const Campo = ({
       return "email";
     }
 
-    if (tipoCampo === TipoCampo.senha) {
+    if (tipoCampo === TipoCampo.senha || tipoCampo === TipoCampo.numericoInteiro) {
 
       return "numeric";
     }
@@ -142,7 +143,7 @@ const Campo = ({
       return "email-address";
     }
 
-    if (tipoCampo === TipoCampo.senha) {
+    if (tipoCampo === TipoCampo.senha || tipoCampo === TipoCampo.numericoInteiro) {
 
       return "number-pad";
     }

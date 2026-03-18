@@ -19,7 +19,7 @@ import { validarTelefone } from "@/app/utils/validarTelefone";
 import { useFocusEffect } from "@react-navigation/native";
 import * as ImagePicker from "expo-image-picker";
 import { useCallback, useEffect, useState } from "react";
-import { ScrollView } from "react-native";
+import { Pressable, ScrollView } from "react-native";
 
 // tela de cadastro de cliente
 const CadastroCliente = ({ navigation, route }: any) => {
@@ -514,7 +514,12 @@ const CadastroCliente = ({ navigation, route }: any) => {
         "Registrando o cliente no servidor, aguarde..." 
         : "Enviando os dados do cliente para o servidor, aguarde..." } />
       <ScrollView showsVerticalScrollIndicator={ false }>
-        <Foto fotoApresentar={ foto } />
+        { /** quando clicar na foto, tirar foto do cliente */ }
+        <Pressable onPress={ () => {
+          tirarFotoCliente();
+        } }>
+          <Foto fotoApresentar={ foto } />
+        </Pressable>
         { /** botão para o usuário tirar foto do cliente */ }
         <BotaoTirarFoto
           titulo="Tirar foto do cliente(opcional)"

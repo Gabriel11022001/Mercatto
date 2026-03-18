@@ -2,10 +2,13 @@ import BotaoPadrao from "@/app/components/BotaoPadrao";
 import Campo, { TipoCampo } from "@/app/components/Campo";
 import Loader from "@/app/components/Loader";
 import Tela from "@/app/components/Tela";
+import { listarCategoriasFirebase } from "@/app/firebase/gestaoCategoria";
+import { buscarProdutoPeloNomeFirebase, cadastrarProdutoFirebase } from "@/app/firebase/gestaoProduto";
 import CategoriaProduto from "@/app/type/categoriaProduto";
 import { Produto, StatusProduto } from "@/app/type/produto";
 import { apresentarAlerta, TipoAlerta } from "@/app/utils/apresentarAlertas";
-import { useEffect, useState } from "react";
+import { useFocusEffect } from "@react-navigation/native";
+import { useCallback, useEffect, useState } from "react";
 import { ScrollView } from "react-native";
 
 enum TipoCampoProduto {
@@ -21,23 +24,35 @@ enum TipoCampoProduto {
 // tela de cadastro de produto
 const CadastroProduto = ({ navigation, route }: any) => {
 
-  const [ carregando, setCarregando ]                     = useState<boolean>(false);
-  const [ produtoEditarId, setProdutoEditarId ]           = useState<string>("");
-  const [ nomeProduto, setNomeProduto ]                   = useState<string>("");
-  const [ descricao, setDescricao ]                       = useState<string>("");
-  const [ preco, setPreco ]                               = useState<string>("");
-  const [ precoComDesconto, setPrecoComDesconto ]         = useState<string | null>("");
-  const [ estoque, setEstoque ]                           = useState<string>("");
-  const [ categoria, setCategoria ]                       = useState<CategoriaProduto | null>(null);
-  const [ statusEstoqueProduto, setStatusEstoqueProduto ] = useState<StatusProduto | null>(null);
-  const [ ativo, setAtivo ]                               = useState<boolean>(true);
-  const [ categorias, setCategorias ]                     = useState<Array<{ key: string, label: string, valor: string }>>([]);
-  const [ erroNomeProduto, setErroNomeProduto ]           = useState<string>("");
-  const [ erroDescricao, setErroDescricao ]               = useState<string>("");
-  const [ erroPreco, setErroPreco ]                       = useState<string>("");
-  const [ erroPrecoComDesconto, setErroPrecoComDesconto ] = useState<string>("");
-  const [ erroEstoque, setErroEstoque ]                   = useState<string>("");
-  const [ habilitarBotaoSalvar, setHabilitarBotaoSalvar ] = useState<boolean>(false);
+  const [ carregando, setCarregando ]                                                  = useState<boolean>(false);
+  const [ produtoEditarId, setProdutoEditarId ]                                        = useState<string>("");
+  const [ nomeProduto, setNomeProduto ]                                                = useState<string>("");
+  const [ descricao, setDescricao ]                                                    = useState<string>("");
+  const [ preco, setPreco ]                                                            = useState<string>("");
+  const [ precoComDesconto, setPrecoComDesconto ]                                      = useState<string | null>("");
+  const [ estoque, setEstoque ]                                                        = useState<string>("");
+  const [ categoria, setCategoria ]                                                    = useState<CategoriaProduto | null>(null);
+  const [ statusEstoqueProduto, setStatusEstoqueProduto ]                              = useState<StatusProduto | null>(null);
+  const [ ativo, setAtivo ]                                                            = useState<boolean>(true);
+  const [ categorias, setCategorias ]                                                  = useState<Array<{ key: string, label: string, valor: string }>>([]);
+  const [ erroNomeProduto, setErroNomeProduto ]                                        = useState<string>("");
+  const [ erroDescricao, setErroDescricao ]                                            = useState<string>("");
+  const [ erroPreco, setErroPreco ]                                                    = useState<string>("");
+  const [ erroPrecoComDesconto, setErroPrecoComDesconto ]                              = useState<string>("");
+  const [ erroEstoque, setErroEstoque ]                                                = useState<string>("");
+  const [ habilitarBotaoSalvar, setHabilitarBotaoSalvar ]                              = useState<boolean>(false);
+  const listaOpcoesAtivoProduto: Array<{ key: string, label: string, valor: string }> = [
+    {
+      key: "ativo",
+      label: "Ativo",
+      valor: "Ativo"
+    },
+    {
+      key: "inativo",
+      label: "Inativo",
+      valor: "Inativo"
+    }
+  ];
 
   // função invocada no momento de digitar o valor do campo
   const onDigitar = (valorDigitado: string, campo: TipoCampoProduto): void => {
@@ -128,6 +143,25 @@ const CadastroProduto = ({ navigation, route }: any) => {
         }
 
         break;
+
+        // quantidade de unidades em estoque do produto
+        case TipoCampoProduto.estoque:
+          setErroEstoque("");
+          setEstoque(valorDigitado.trim());
+
+          if (valorDigitado.trim().length === 0) {
+            setErroEstoque("Informe a quantidade de unidades em estoque do produto.");
+          } else {
+            const estoqueNumero: number = parseInt(valorDigitado.trim());
+
+            if (estoqueNumero < 0) {
+              setErroEstoque("Uni.Estoque inválido.");
+            }
+
+          }
+
+          break;
+
     }
 
   }
@@ -141,31 +175,38 @@ const CadastroProduto = ({ navigation, route }: any) => {
     try {
       setCarregando(true);
 
-      let statusEstoque: string = "";
-
-      if (statusEstoqueProduto === StatusProduto.estoque_disponivel) {
-        statusEstoque = "estoque_disponivel";
-      } else if (statusEstoqueProduto === StatusProduto.sem_estoque) {
-        statusEstoque = "sem_estoque";
-      }
-
       const produtoCadastrar: Produto = {
         nomeProduto: nomeProduto.trim(),
         descricao: descricao.trim(),
-        preco: parseFloat(preco.trim()),
-        precoComDesconto: precoComDesconto != null ? parseFloat(precoComDesconto) : undefined,
+        preco: parseFloat(preco.replace(",", ".").replace(".", "").trim()) / 100,
+        precoComDesconto: precoComDesconto != null && precoComDesconto != "" ? 
+          parseFloat(precoComDesconto.replace(",", ".").replace(".", "").trim()) / 100 
+          : undefined,
         ativo: ativo,
-        categoria: categoria ?? undefined,
+        categoria: {
+          id: categoria?.id ?? "",
+          nomeCategoria: categoria?.nomeCategoria ?? "",
+          status: true
+        },
         estoque: parseInt(estoque),
-        statusEstoque: statusEstoque
+        statusEstoque: "estoque_disponivel"
       }
 
       // validar se já existe outro produto cadastrado com o mesmo nome
+      if (await buscarProdutoPeloNomeFirebase(produtoCadastrar.nomeProduto)) {
+        setCarregando(false);
+
+        apresentarAlerta("Informe outro nome para o produto.", TipoAlerta.erro);
+
+        return;
+      }
 
       // cadastrar o produto
+      await cadastrarProdutoFirebase(produtoCadastrar);
 
       apresentarAlerta("Produto cadastrado com sucesso.", TipoAlerta.sucesso);
-      navigation.goBack();
+      
+      // redirecionar o usuário para a tela de listagem de produtos
     } catch (e) {
       console.error(`Erro ao tentar-se cadastrar o produto: ${ e }`);
       
@@ -217,6 +258,56 @@ const CadastroProduto = ({ navigation, route }: any) => {
     erroDescricao
   ]);
 
+  // listar categoria de produto
+  const listarCategoriasProduto = async () => {
+
+    try {
+      setCarregando(true);
+      setCategorias([]);
+
+      const categorias: Array<CategoriaProduto> = await listarCategoriasFirebase();
+
+      if (categorias.length === 0) {
+        console.log("Não existem categorias salvas na base de dados.");
+
+        apresentarAlerta("Não existem categorias, cadastre-as agora.", TipoAlerta.aviso);
+
+        navigation.replace("cadastro_categoria");
+      } else {
+        const categoriasAtivas: Array<CategoriaProduto> = categorias.filter(c => c.status);
+
+        setCategorias(categoriasAtivas.map((c: CategoriaProduto) => {
+
+          return {
+            key: c.id ?? "",
+            label: c.nomeCategoria,
+            valor: c.id ?? ""
+          }
+        }));
+
+        console.log("Categorias listadas com sucesso.");
+
+        setCategoria({
+          id: categorias[ 0 ].id ?? "",
+          nomeCategoria: categorias[ 0 ].nomeCategoria,
+          status: categorias[ 0 ].status
+        });
+      }
+
+    } catch (e) {
+      console.error(`Erro ao tentar-se listar as categorias: ${ e }`, TipoAlerta.erro);
+
+      apresentarAlerta("Erro, tente novamente.", TipoAlerta.erro);
+    } finally {
+      setCarregando(false);
+    }
+
+  }
+
+  useFocusEffect(useCallback(() => {
+    listarCategoriasProduto();
+  }, []));
+
   return <Tela>
     <Loader carregando={ carregando } msg="Enviando os dados do produto para o servidor, aguarde..." />
     <ScrollView showsVerticalScrollIndicator={ false }>
@@ -267,6 +358,67 @@ const CadastroProduto = ({ navigation, route }: any) => {
         onVisualizarSenha={ () => {} }
         alterarValor={ (precoDescontoDigitado: string) => {
           onDigitar(precoDescontoDigitado, TipoCampoProduto.preco_com_desconto);
+        } } />
+      { /** campo para o usuário informar se o produto está ativo ou inativo */ }
+      <Campo
+        valor={ ativo ? "Ativo" : "Inativo" }
+        habilitado={ true }
+        label="Ativo"
+        onVisualizarSenha={ () => {} }
+        senhaVisivel={ true }
+        tipoCampo={ TipoCampo.multiploSeletorPadrao }
+        erro=""
+        opcoes={ listaOpcoesAtivoProduto }
+        onSelecionarOpcao={ (opcaoSelecionada: string) => {
+
+          if (opcaoSelecionada === "Ativo") {
+            setAtivo(true);
+          } else {
+            setAtivo(false);
+          }
+
+        } } />
+      { /** campo para o usuário informar a categoria do produto */ }
+      <Campo
+        valor={ categoria?.id ?? "" }
+        habilitado={ true }
+        label="Categoria"
+        onVisualizarSenha={ () => {} }
+        senhaVisivel={ true }
+        tipoCampo={ TipoCampo.multiploSeletorPadrao }
+        erro=""
+        opcoes={ categorias }
+        onSelecionarOpcao={ (categoriaSelecionada: string) => {
+          let categoriaUsuarioSelecionou: { key: string, label: string, valor: string } | null = null;
+
+          for (let i: number = 0; i < categorias.length; i++) {
+
+            if (categorias[ i ].valor === categoriaSelecionada) {
+              categoriaUsuarioSelecionou = categorias[ i ];
+            }
+
+          }
+
+          if (categoriaUsuarioSelecionou != null) {
+            setCategoria({
+              id: categoriaUsuarioSelecionou.key,
+              nomeCategoria: categoriaUsuarioSelecionou.label,
+              status: true
+            });
+          }
+
+        } } />
+      { /** campo para o usuário informar a quantidade de unidades em estoque do produto */ }
+      <Campo
+        valor={ estoque }
+        habilitado={ true }
+        label="Uni.Estoque"
+        senhaVisivel={ true }
+        tipoCampo={ TipoCampo.numericoInteiro }
+        erro={ erroEstoque }
+        onVisualizarSenha={ () => {} }
+        alterarValor={ (estoqueDigitado: string) => {
+          onDigitar(estoqueDigitado, TipoCampoProduto.estoque);
         } } />
       <BotaoPadrao
         habilitado={ habilitarBotaoSalvar }

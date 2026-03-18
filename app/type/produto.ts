@@ -12,8 +12,8 @@ export type Produto = {
   id?: string;
   nomeProduto: string;
   descricao: string;
-  preco: number;
-  precoComDesconto?: number;
+  preco: number | string;
+  precoComDesconto?: number | string;
   categoria?: CategoriaProduto;
   ativo: boolean;
   statusEstoque: string;
