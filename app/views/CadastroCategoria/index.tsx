@@ -5,6 +5,7 @@ import Tela from "@/app/components/Tela";
 import { buscarCategoriaPeloIdFirebase, buscarCategoriaPeloNomeFirebase, cadastrarCategoriaFirebase, editarCategoriaFirebase } from "@/app/firebase/gestaoCategoria";
 import CategoriaProduto from "@/app/type/categoriaProduto";
 import { apresentarAlerta, TipoAlerta } from "@/app/utils/apresentarAlertas";
+import { log } from "@/app/utils/log";
 import validarSecaoUsuario from "@/app/utils/validarSecaoUsuario";
 import { useFocusEffect } from "@react-navigation/native";
 import { useCallback, useState } from "react";
@@ -47,6 +48,7 @@ const CadastroCategoria = ({ navigation, route }: any) => {
       }
 
     } catch (e) {
+      await log.erro(`Erro ao tentar-se buscar a categoria ${ categoriaEditarId } pelo id: ${ e }`);
       // apresentar alerta de erro para o usuário
       console.error(`Erro ao tentar-se buscar a categoria: ${ e }`);
 
@@ -76,11 +78,18 @@ const CadastroCategoria = ({ navigation, route }: any) => {
         status: status
       });
 
+      await log.debug("Categoria cadastrada com sucesso.", {
+        nomeCategoria: nomeCategoria.trim(),
+        status: status
+      });
+
       apresentarAlerta("Categoria cadastrada com sucesso.", TipoAlerta.sucesso);
 
       navigation.goBack();
     } catch (e) {
       console.error(`Erro ao tentar-se cadastrar a categoria: ${ e }`);
+
+      await log.erro(`Erro ao tentar-se cadastrar a categoria: ${ e }`);
 
       apresentarAlerta("Erro ao tentar-se cadastrar a categoria, tente novamente.", TipoAlerta.erro);
     } finally {
@@ -107,6 +116,12 @@ const CadastroCategoria = ({ navigation, route }: any) => {
       
       await editarCategoriaFirebase({ id: categoriaEditarId ?? "", nomeCategoria: nomeCategoria.trim(), status: status });
       
+      await log.debug("Categoria editada com sucesso.", {
+        idCategoria: categoriaEditarId ?? "",
+        nomeCategoria: nomeCategoria,
+        status: status
+      });
+
       apresentarAlerta("Categoria salva com sucesso.", TipoAlerta.sucesso);
       
       navigation.goBack();

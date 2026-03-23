@@ -10,6 +10,7 @@ import { consultarClienteFirebase } from "@/app/firebase/consultarCliente";
 import { editarClienteFirebase } from "@/app/firebase/editarCliente";
 import { Cliente } from "@/app/type/cliente";
 import { apresentarAlerta, TipoAlerta } from "@/app/utils/apresentarAlertas";
+import { log } from "@/app/utils/log";
 import { validarCep } from "@/app/utils/validarCep";
 import validarCpf from "@/app/utils/validarCpf";
 import { validarDataNascimento } from "@/app/utils/validarDataNascimento";
@@ -334,9 +335,12 @@ const CadastroCliente = ({ navigation, route }: any) => {
         apresentarAlerta("Cliente salvo com sucesso.", TipoAlerta.sucesso);
       }
       
+      await log.debug(`Cliente salvo com sucesso.`, { ...cliente });
+
       // retornar para a tela de listagem de clientes
       navigation.goBack();
     } catch (e) {
+      await log.erro(`Erro ao tentar-se salvar o cliente: ${ e }`);
       console.error(`Erro ao tentar-se salvar o cliente: ${ e }`);
 
       apresentarAlerta("Erro ao tentar-se salvar o cliente.", TipoAlerta.erro);
@@ -387,7 +391,7 @@ const CadastroCliente = ({ navigation, route }: any) => {
       }
 
     } catch (e) {
-
+      await log.erro(`Erro ao tentar-se buscar o cliente pelo id ${ idCliente }: ${ e }`);
     } finally {
       setCarregando(false);
     }

@@ -5,6 +5,7 @@ import Tela from "@/app/components/Tela";
 import { buscarUsuarioPeloEmailSenha } from "@/app/firebase/gestaoUsuario";
 import { Usuario } from "@/app/type/usuario";
 import { apresentarAlerta, TipoAlerta } from "@/app/utils/apresentarAlertas";
+import { log } from "@/app/utils/log";
 import obterDataAcrescidoMinutos from "@/app/utils/obterDataAcrescidoMinutos";
 import obterDataAtual from "@/app/utils/obterDataAtual";
 import obterDataFormatada from "@/app/utils/obterDataFormatada";
@@ -63,11 +64,26 @@ const Login = ({ navigation }: any) => {
       const usuarioLogin: Usuario | null = await buscarUsuarioPeloEmailSenha(email, senha);
 
       if (usuarioLogin != null) {
+
+        if (!usuarioLogin.ativo) {
+          setCarregando(false);
+          await log.erro("Usuário " + usuarioLogin.email + " encontrado, mas está com perfil inativo.");
+          apresentarAlerta("Perfil desativado!", TipoAlerta.erro);
+
+          return;
+        }
+
         // encontrou o usuário na base
         await salvarDadosUsuarioSecao(usuarioLogin);
 
         // redirecionar o usuário para a tela home
         navigation.replace("home");
+
+        await log.debug("Login efetuado com sucesso para o usuário " + email, {
+          email: email,
+          usuario: usuarioLogin.nome,
+          ativo: usuarioLogin.ativo
+        });
 
         apresentarAlerta("Login efetuado com sucesso.", TipoAlerta.sucesso);
       } else {
@@ -75,8 +91,9 @@ const Login = ({ navigation }: any) => {
       }
 
     } catch (e) {
+      await log.erro(`Erro no login para o usuário ${ email }: ${ e }`);
       console.error(`Erro ao tentar-se realizar login: ${ e }`);
-      apresentarAlerta("Erro no login, tente novamente.", TipoAlerta.erro);
+      apresentarAlerta(`${ e }`, TipoAlerta.erro);
     } finally {
       setCarregando(false);
     }
@@ -128,7 +145,9 @@ const Login = ({ navigation }: any) => {
             console.log("Deslogar o usuário.");
             AsyncStorage.removeItem("@usuario_logado");
             console.log("Deslogado com sucesso.");
+            await log.debug("Usuário deslogado com sucesso " + usuarioLogadoJson.email);
           } else {
+            await log.debug("Login automático efetuado com sucesso.");
             // redirecionar para a home
             navigation.replace("home");
           }
@@ -138,7 +157,7 @@ const Login = ({ navigation }: any) => {
       }
 
     } catch (e) {
-
+      await log.erro(`Erro login automático: ${ e }`);
     } finally {
       setCarregando(false);
     }

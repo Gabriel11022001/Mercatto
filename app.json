@@ -19,7 +19,8 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.gabriel11022001.Mercatto"
     },
     "web": {
       "output": "single",
@@ -29,6 +30,12 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "f0a9f539-5786-4ffe-a452-7ee8fbae6ec4"
+      }
+    },
+    "owner": "gabriel11022001"
   }
 }

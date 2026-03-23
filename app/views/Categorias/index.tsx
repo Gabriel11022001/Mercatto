@@ -5,6 +5,7 @@ import Tela from "@/app/components/Tela";
 import { alterarStatusCategoriaFirebase, deletarCategoriaFirebase, listarCategoriasFirebase } from "@/app/firebase/gestaoCategoria";
 import CategoriaProduto from "@/app/type/categoriaProduto";
 import { apresentarAlerta, TipoAlerta } from "@/app/utils/apresentarAlertas";
+import { log } from "@/app/utils/log";
 import validarSecaoUsuario from "@/app/utils/validarSecaoUsuario";
 import { config } from "@/config";
 import { useFocusEffect } from "@react-navigation/native";
@@ -26,6 +27,7 @@ const Categorias = ({ navigation }: any) => {
 
       setCategorias(resp);
     } catch (e) {
+      await log.erro(`Erro ao tentar-se listar as categorias: ${ e }`);
       console.error(`Erro ao tentar-se listar as categorias: ${ e }`);
       apresentarAlerta("Erro ao tentar-se listar as categorias, tente novamente!", TipoAlerta.erro);
     } finally {
@@ -45,8 +47,11 @@ const Categorias = ({ navigation }: any) => {
 
       apresentarAlerta("Categoria deletada com sucesso.", TipoAlerta.sucesso);
 
+      await log.debug(`Categoria ${ categoria.id ?? "" } deletada com sucesso.`);
+
       await listarCategorias();
     } catch (e) {
+      await log.erro(`Erro ao tentar-se deletar a categoria: ${ e }`);
       console.error(`Erro ao tentar-se deletar a categoria: ${ e }`);
       
       apresentarAlerta("Erro ao tentar-se deletar a categoria.", TipoAlerta.erro);
@@ -73,12 +78,15 @@ const Categorias = ({ navigation }: any) => {
 
       if (categoria.status) {
         apresentarAlerta("Categoria desabilitada com sucesso.", TipoAlerta.sucesso);
+        await log.debug(`Categoria ${ categoria.id ?? "" } desabilitada com sucesso.`);
       } else {
         apresentarAlerta("Categoria habilitada com sucesso.", TipoAlerta.sucesso);
+        await log.debug(`Categoria ${ categoria.id ?? "" } habilitada com sucesso.`);
       }
 
       await listarCategorias();
     } catch (e) {
+      await log.erro(`Erro ao tentar-se alterar o status da categoria ${ categoria.id ?? "" }: ${ e }`);
       console.error(`Erro ao tentar-se alterar o status da categoria: ${ e }`);
 
       setCarregando(false);

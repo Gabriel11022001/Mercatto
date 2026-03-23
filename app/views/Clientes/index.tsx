@@ -6,6 +6,7 @@ import deletarClienteFirebase from "@/app/firebase/deletarCliente";
 import listarClientesFirebase from "@/app/firebase/listarClientes";
 import { Cliente } from "@/app/type/cliente";
 import { apresentarAlerta, TipoAlerta } from "@/app/utils/apresentarAlertas";
+import { log } from "@/app/utils/log";
 import validarSecaoUsuario from "@/app/utils/validarSecaoUsuario";
 import { config } from "@/config";
 import { useFocusEffect } from "@react-navigation/native";
@@ -32,6 +33,8 @@ const Clientes = ({ navigation }: any) => {
     } catch (e) {
       console.log(e);
 
+      await log.erro(`Erro ao tentar-se listar os clientes: ${ e }`);
+
       // apresentar um alerta de erro para o usuário
     } finally {
       setCarregando(false);
@@ -51,11 +54,15 @@ const Clientes = ({ navigation }: any) => {
       // apresentar alerta de sucesso para o usuário
       apresentarAlerta("Cliente deletado com sucesso.", TipoAlerta.sucesso);
 
+      await log.debug(`Cliente ${ clienteDeletar.id ?? "" } deletado com sucesso.`);
+
       // listar os clientes novamente
       await listarClientes();
     } catch (e) {
       // apresentar alerta de erro para o usuário
       console.error("Erro ao tentar-se deletar o cliente: " + e);
+
+      await log.erro(`Erro ao tentar-se deletar o cliente ${ clienteDeletar.id ?? "" }: ${ e }`);
 
       apresentarAlerta("Erro na deleção de cliente.", TipoAlerta.erro);
     } finally {

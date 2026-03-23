@@ -41,11 +41,14 @@ export const ProdutoItem = ({ produto, onDeletar, onVisualizar, onEditar, onAlte
     <View style={ styles.containerDadosProduto }>
       <Text style={ styles.nomeProduto }>{ produto.nomeProduto }</Text> 
       <Text style={ styles.dado }>{ produto.estoque === 1 ? `${ produto.estoque } unidade em estoque` : `${ produto.estoque } unidades em estoque` }</Text>
-      <Text style={ styles.dado }>Preço de venda: { obterPrecoFormatoReal(produto.preco.toString()) }</Text>
-      { produto.precoComDesconto != undefined && produto.precoComDesconto != "" ? <Text style={ styles.dado }>Preço com desconto: { obterPrecoFormatoReal(
+      <Text style={ [ styles.dado, styles.dadoDestacado ] }>Preço de venda: { obterPrecoFormatoReal(produto.preco.toString()) }</Text>
+      { produto.precoComDesconto != undefined && produto.precoComDesconto != "" ? <Text style={ [
+        styles.dado,
+        styles.dadoDestacado
+      ] }>Preço com desconto: { obterPrecoFormatoReal(
         produto.precoComDesconto.toString()
       ) }</Text> : false }
-      <Text style={ styles.dado }>Categoria: { produto.categoria?.nomeCategoria }</Text>
+      <Text style={ [ styles.dado, styles.dadoDestacado ] }>Categoria: { produto.categoria?.nomeCategoria }</Text>
       <Status status={ produto.ativo ? StatusItem.ativo : StatusItem.inativo } />
     </View>
     <View>

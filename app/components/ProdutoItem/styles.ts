@@ -36,6 +36,9 @@ const styles = StyleSheet.create({
     fontSize: 15,
     marginTop: 4
   },
+  dadoDestacado: {
+    fontWeight: "bold"
+  },
   containerOperacoes: {
     backgroundColor: config.cores.find(c => c.nomeCor === "branco")?.cor ?? "#fff",
     padding: 10,

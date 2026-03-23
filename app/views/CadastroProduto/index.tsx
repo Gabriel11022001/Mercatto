@@ -3,10 +3,12 @@ import Campo, { TipoCampo } from "@/app/components/Campo";
 import Loader from "@/app/components/Loader";
 import Tela from "@/app/components/Tela";
 import { listarCategoriasFirebase } from "@/app/firebase/gestaoCategoria";
-import { buscarProdutoPeloNomeFirebase, cadastrarProdutoFirebase } from "@/app/firebase/gestaoProduto";
+import { buscarProdutoPeloIdFirebase, buscarProdutoPeloNomeFirebase, cadastrarProdutoFirebase } from "@/app/firebase/gestaoProduto";
 import CategoriaProduto from "@/app/type/categoriaProduto";
 import { Produto, StatusProduto } from "@/app/type/produto";
 import { apresentarAlerta, TipoAlerta } from "@/app/utils/apresentarAlertas";
+import { log } from "@/app/utils/log";
+import obterValorMonetario from "@/app/utils/obterValorMonetario";
 import { useFocusEffect } from "@react-navigation/native";
 import { useCallback, useEffect, useState } from "react";
 import { ScrollView } from "react-native";
@@ -243,6 +245,65 @@ const CadastroProduto = ({ navigation, route }: any) => {
 
   }
 
+  const preencherCampos = (produto: Produto): void => {
+    setNomeProduto(produto.nomeProduto);
+    setAtivo(produto.ativo);
+    setDescricao(produto.descricao);
+    setEstoque(produto.estoque.toString());
+    setPreco(obterValorMonetario(produto.preco.toString()));
+    
+    if (produto.precoComDesconto) {
+      setPrecoComDesconto(obterValorMonetario(produto.precoComDesconto.toString()));
+    }
+
+    if (categorias.length > 0) {
+
+      categorias.forEach((categoriaValidar: { key: string, label: string, valor: string }) => {
+
+        if (categoriaValidar.key === produto.categoria?.id) {
+          setCategoria({
+            id: categoriaValidar.key ?? "",
+            nomeCategoria: categoriaValidar.label,
+            status: true
+          });
+        }
+
+      });
+
+    } else {
+      console.log("Não existem categorias.");
+    }
+
+  }
+
+  // buscar o produto pelo id
+  const buscarProdutoPeloId = async (id: string) => {
+    setCarregando(true);
+
+    try {
+      console.log("Consultar produto pelo id...");
+
+      const produto: Produto | null = await buscarProdutoPeloIdFirebase(id ?? "");
+
+      if (produto != null) {
+        preencherCampos(produto);
+      } else {
+        apresentarAlerta("Produto não encontrado.", TipoAlerta.erro);
+
+        navigation.goBack();
+      }
+
+    } catch (e) {
+      console.log("Erro consultar produto: " + e);
+      await log.erro(`Erro ao tentar-se obter o produto ${ produtoEditarId } pelo id: ${ e }`);
+
+      apresentarAlerta("Erro buscar produto.", TipoAlerta.erro);
+    } finally {
+      setCarregando(false);
+    }
+
+  }
+
   useEffect(() => {
     habilitarOuDesabilitarBotaoSalvar();
   }, [
@@ -304,8 +365,17 @@ const CadastroProduto = ({ navigation, route }: any) => {
 
   }
 
+  useEffect(() => {
+    buscarProdutoPeloId(route.params.idProdutoEditar ?? "");
+  }, [ categorias, produtoEditarId ]);
+
   useFocusEffect(useCallback(() => {
     listarCategoriasProduto();
+
+    if (route.params && route.params.idProdutoEditar != null) {
+      setProdutoEditarId(route.params.idProdutoEditar);
+    }
+
   }, []));
 
   return <Tela>

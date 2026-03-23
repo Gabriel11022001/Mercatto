@@ -1,5 +1,5 @@
 import { db } from "@/firebase_config";
-import { addDoc, collection, getDocs, query, where } from "firebase/firestore";
+import { addDoc, collection, doc, getDoc, getDocs, query, where } from "firebase/firestore";
 import { Produto } from "../type/produto";
 import { buscarCategoriaPeloIdFirebase } from "./gestaoCategoria";
 
@@ -131,5 +131,38 @@ export const alterarStatusProdutoFirebase = async (id: string, novoStatus: boole
 
 // buscar o produto pelo id no firebase
 export const buscarProdutoPeloIdFirebase = async (id: string) => {
-  
+
+  try {    
+    const produtoRef = doc(db, "produtos", id);
+    const snapshot = await getDoc(produtoRef);
+
+    if (snapshot.exists()) {
+      
+      const produto: Produto = {
+        id: snapshot.id,
+        nomeProduto: snapshot.data().nome_produto,
+        ativo: snapshot.data().ativo,
+        descricao: snapshot.data().descricao,
+        estoque: snapshot.data().estoque,
+        statusEstoque: snapshot.data().status_estoque,
+        preco: snapshot.data().preco,
+        precoComDesconto: snapshot.data().preco_com_desconto,
+        categoria: {
+          id: snapshot.data().categoria_produto_id,
+          nomeCategoria: "",
+          status: true
+        }
+      }
+      
+      return produto;
+    } else {
+    
+      return null
+    }
+
+  } catch (e) {
+
+    throw e;
+  }
+
 }

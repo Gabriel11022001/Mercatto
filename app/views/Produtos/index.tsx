@@ -5,6 +5,7 @@ import Tela from "@/app/components/Tela";
 import { listarProdutosFirebase } from "@/app/firebase/gestaoProduto";
 import { Produto } from "@/app/type/produto";
 import { apresentarAlerta, TipoAlerta } from "@/app/utils/apresentarAlertas";
+import { log } from "@/app/utils/log";
 import { config } from "@/config";
 import { useFocusEffect } from "@react-navigation/native";
 import { useCallback, useState } from "react";
@@ -34,12 +35,17 @@ const Produtos = ({ navigation, route }: any) => {
       }
 
     } catch (e) {
+      await log.erro(`Erro ao tentar-se listar os produtos: ${ e }`);
       // apresentar alerta de erro
       apresentarAlerta("Erro ao listar produtos.", TipoAlerta.erro);
     } finally {
       setCarregando(false);
     }
 
+  }
+
+  const visualizarEditarProduto = (idProduto: string): void => {
+    navigation.navigate("cadastro_produto", { idProdutoEditar: idProduto });
   }
 
   useFocusEffect(useCallback(() => {
@@ -58,10 +64,10 @@ const Produtos = ({ navigation, route }: any) => {
         return <ProdutoItem
           produto={ item }
           onVisualizar={ () => {
-            
+            visualizarEditarProduto(item.id ?? "");
           } }
           onEditar={ () => {
-
+            visualizarEditarProduto(item.id ?? "");
           } }
           onDeletar={ () => {
 
