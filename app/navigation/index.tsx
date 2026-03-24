@@ -9,6 +9,8 @@ import CadastroProduto from '../views/CadastroProduto';
 import CadastroUsuario from '../views/CadastroUsuario';
 import Categorias from '../views/Categorias';
 import Clientes from '../views/Clientes';
+import InicioFluxoVenda from '../views/FluxoVenda/InicioFluxoVenda';
+import SelecionarCliente from '../views/FluxoVenda/SelecionarCliente';
 import Home from '../views/Home';
 import Login from '../views/Login';
 import Produtos from '../views/Produtos';
@@ -72,6 +74,16 @@ const Navigation = () => {
       nome: "produtos",
       componente: Produtos,
       titulo: "Produtos"
+    },
+    {
+      nome: "inicio_fluxo_venda",
+      componente: InicioFluxoVenda,
+      titulo: "Venda"
+    },
+    {
+      nome: "selecionar_cliente",
+      componente: SelecionarCliente,
+      titulo: "Venda"
     }
   ];
 

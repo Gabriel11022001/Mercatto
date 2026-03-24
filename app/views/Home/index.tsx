@@ -183,7 +183,7 @@ const Home = ({ navigation }: any) => {
         </View>
         <View style={ styles.containerOpcaoMenu }>
           { /** realizar venda */ }
-          <Pressable onPress={ () => {} } style={ ({ pressed }) => {
+          <Pressable onPress={ () => { navigation.navigate("inicio_fluxo_venda") } } style={ ({ pressed }) => {
 
             if (pressed) {
 

@@ -48,6 +48,23 @@ const Produtos = ({ navigation, route }: any) => {
     navigation.navigate("cadastro_produto", { idProdutoEditar: idProduto });
   }
 
+  // alterar status do produto
+  const alterarStatusProduto = async (produto: Produto) => {
+    setCarregando(true);
+
+    try {
+      console.log("Alterando status do produto, aguarde...");
+      await listarProdutos();      
+    } catch (e) {
+      log.erro(`Erro ao tentar-se alterar o status do produto ${ produto.id ?? "" }: ${ e }`);
+
+      apresentarAlerta("Erro ao tentar-se alterar status.", TipoAlerta.erro);
+    } finally {
+      setCarregando(false);
+    }
+
+  }
+
   useFocusEffect(useCallback(() => {
     listarProdutos();
   }, []));
@@ -73,7 +90,7 @@ const Produtos = ({ navigation, route }: any) => {
 
           } }
           onAlterarStatus={ () => {
-            
+            alterarStatusProduto(item);
           } } />
       } } /> }
   </Tela>
