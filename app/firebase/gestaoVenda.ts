@@ -85,3 +85,23 @@ export const atualizarVenda = async (venda: Venda) => {
   }
 
 }
+
+// definir a venda como rascunho
+export const definirVendaRascunhoFirebase = async (venda: Venda) => {
+
+  try {
+    const docRef = doc(db, "vendas", venda.id ?? "");
+
+    await updateDoc(docRef, {
+      status: "rascunho",
+      cliente_id: venda.clienteId ?? "",
+      forma_pagamento: venda.formaPagamento ?? ""
+    });
+
+    console.log("Venda salva como rascunho: " + venda.id);
+  } catch (e) {
+
+    throw e;
+  }
+
+}

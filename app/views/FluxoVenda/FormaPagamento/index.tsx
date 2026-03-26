@@ -2,7 +2,7 @@ import BotaoCancelar from "@/app/components/BotaoCancelar";
 import BotaoProsseguir from "@/app/components/BotaoProsseguir";
 import Loader from "@/app/components/Loader";
 import Tela from "@/app/components/Tela";
-import { atualizarVenda } from "@/app/firebase/gestaoVenda";
+import { atualizarVenda, definirVendaRascunhoFirebase } from "@/app/firebase/gestaoVenda";
 import useFluxoVenda from "@/app/hooks/useFluxoVenda";
 import { Venda } from "@/app/type/venda";
 import { apresentarAlerta, TipoAlerta } from "@/app/utils/apresentarAlertas";
@@ -96,6 +96,25 @@ const FormaPagamento = ({ navigation }: any) => {
   // cancelar a venda
   const cancelarVenda = async () => {
 
+    try {
+      setCarregando(true);
+      
+      // atualizar a venda como em rascunho
+      await definirVendaRascunhoFirebase(venda as Venda);
+      
+      limparVenda();
+
+      navigation.replace("home");
+
+      apresentarAlerta("Venda cancelada!", TipoAlerta.aviso);
+    } catch (e) {
+      log.erro(`Erro ao tentar-se deixar a venda como rascunho ${ venda?.id ?? "" }: ${ e }`);
+
+      apresentarAlerta("Erro definir venda como rascunho.", TipoAlerta.erro);
+    } finally {
+      setCarregando(false);
+    }
+
   }
 
   // concluir a venda
@@ -163,7 +182,8 @@ const FormaPagamento = ({ navigation }: any) => {
             }
           ] } onPress={ () => {
             setFormaPagamentoSelecionada(formaPagamento);
-          } }>
+          } }
+          key={ formaPagamento }>
             <View style={ {
               flex: 1,
               flexDirection: "row",

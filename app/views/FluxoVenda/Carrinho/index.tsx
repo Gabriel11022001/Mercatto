@@ -4,6 +4,7 @@ import Loader from "@/app/components/Loader";
 import Tela from "@/app/components/Tela";
 import { buscarClientePeloIdFirebase } from "@/app/firebase/buscarCliente";
 import { buscarProdutoPeloIdFirebase } from "@/app/firebase/gestaoProduto";
+import { definirVendaRascunhoFirebase } from "@/app/firebase/gestaoVenda";
 import useFluxoVenda from "@/app/hooks/useFluxoVenda";
 import { Cliente } from "@/app/type/cliente";
 import { Produto } from "@/app/type/produto";
@@ -230,17 +231,21 @@ const Carrinho = ({ navigation }: any) => {
 
   // cancelar a venda
   const cancelarVenda = async () => {
-    
+
     try {
+      setCarregando(true);
       // atualizar a venda como em rascunho
+      await definirVendaRascunhoFirebase(venda as Venda);
+      
+      limparVenda();
 
-      //limparVenda();
+      navigation.replace("home");
 
-      //navigation.replace("home");
-
-      //apresentarAlerta("Venda cancelada!", TipoAlerta.aviso);
+      apresentarAlerta("Venda cancelada!", TipoAlerta.aviso);
     } catch (e) {
+      log.erro(`Erro ao tentar-se deixar a venda como rascunho ${ venda?.id ?? "" }: ${ e }`);
 
+      apresentarAlerta("Erro definir venda como rascunho.", TipoAlerta.erro);
     } finally {
       setCarregando(false);
     }
