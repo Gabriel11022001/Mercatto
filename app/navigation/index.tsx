@@ -9,6 +9,9 @@ import CadastroProduto from '../views/CadastroProduto';
 import CadastroUsuario from '../views/CadastroUsuario';
 import Categorias from '../views/Categorias';
 import Clientes from '../views/Clientes';
+import AdicionarProdutoCarrinho from '../views/FluxoVenda/AdicionarProdutoCarrinho';
+import Carrinho from '../views/FluxoVenda/Carrinho';
+import FormaPagamento from '../views/FluxoVenda/FormaPagamento';
 import InicioFluxoVenda from '../views/FluxoVenda/InicioFluxoVenda';
 import SelecionarCliente from '../views/FluxoVenda/SelecionarCliente';
 import Home from '../views/Home';
@@ -84,6 +87,21 @@ const Navigation = () => {
       nome: "selecionar_cliente",
       componente: SelecionarCliente,
       titulo: "Venda"
+    },
+    {
+      nome: "carrinho",
+      componente: Carrinho,
+      titulo: "Carrinho de Compra"
+    },
+    {
+      nome: "adicionar_produto_carrinho",
+      componente: AdicionarProdutoCarrinho,
+      titulo: "Adicionar Produto"
+    },
+    {
+      nome: "forma_pagamento",
+      componente: FormaPagamento,
+      titulo: "Forma de Pagamento"
     }
   ];
 

@@ -1,5 +1,5 @@
 import AlertaNaoExistemDados from "@/app/components/AlertaNaoExistemDados";
-import BotaoPadrao from "@/app/components/BotaoPadrao";
+import BotaoCancelar from "@/app/components/BotaoCancelar";
 import Loader from "@/app/components/Loader";
 import Tela from "@/app/components/Tela";
 import { atualizarVenda } from "@/app/firebase/gestaoVenda";
@@ -12,7 +12,7 @@ import { log } from "@/app/utils/log";
 import { config } from "@/config";
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { useFocusEffect } from "@react-navigation/native";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { FlatList, Pressable, Text, View } from "react-native";
 import styles from "./styles";
 
@@ -29,6 +29,7 @@ const SelecionarCliente = ({ navigation }: any) => {
   const listarClientes = async () => {
 
     try {
+      console.log("Consultado os clientes disponíveis, aguarde...");
       setCarregando(true);
       setMsgCarregando("Consultando os clientes disponíveis, aguarde...");
       setClientes([]);
@@ -44,12 +45,6 @@ const SelecionarCliente = ({ navigation }: any) => {
         navigation.replace("home");
       } else {
         setClientes(clientes);
-
-        if (venda?.clienteId) {
-          // um cliente já está selecionado no fluxo de venda
-          setClienteSelecionado(clientes.find(cliente => cliente.id === venda.id) ?? null);
-        }
-
       }
 
     } catch (e) {
@@ -66,11 +61,34 @@ const SelecionarCliente = ({ navigation }: any) => {
 
   }
 
+  useEffect(() => {
+
+    if (venda?.clienteId) {
+      // um cliente já está selecionado no fluxo de venda
+      const clienteSelecionadoVenda = clientes.find(cliente => cliente.id === venda.clienteId) ?? null;
+      setClienteSelecionado(clienteSelecionadoVenda);
+    }
+
+  }, [ clientes ]);
+
   // cancelar o fluxo de venda
   const cancelarFluxoVenda = async () => {
-    limparVenda();
+    
+    try { 
+      setCarregando(true);
+      // atualizar a venda como em rascunho
+      
+      //limparVenda();
 
-    navigation.replace("home");
+      //navigation.replace("home");
+
+      //apresentarAlerta("Venda cancelada!", TipoAlerta.aviso);
+    } catch (e) {
+
+    } finally {
+      setCarregando(false);
+    }
+
   }
 
   // selecionar o cliente da venda
@@ -85,7 +103,9 @@ const SelecionarCliente = ({ navigation }: any) => {
         status: venda?.status ?? "",
         clienteId: idCliente,
         valorTotal: venda?.valorTotal ?? 0,
-        dataConclusaoVenda: venda?.dataConclusaoVenda ?? ""
+        dataConclusaoVenda: venda?.dataConclusaoVenda ?? "",
+        itemsVenda: venda?.itemsVenda ?? [],
+        formaPagamento: venda?.formaPagamento ?? ""
       }
 
       await atualizarVenda(vendaAtualizada);
@@ -98,6 +118,7 @@ const SelecionarCliente = ({ navigation }: any) => {
       });
 
       // redirecionar o usuário para a tela de carrinho de compra
+      navigation.navigate("carrinho");
     } catch (e) {
       log.erro(`Erro ao tentar-se selecionar o cliente da venda ${ venda?.id }: ${ e }`);
 
@@ -122,6 +143,15 @@ const SelecionarCliente = ({ navigation }: any) => {
     <FlatList
       data={ clientes }
       keyExtractor={ c => c.id.toString() }
+      ListFooterComponent={ () => {
+        
+        return <>
+          { /** botão para cancelar o fluxo de venda */ } 
+          <BotaoCancelar titulo="Cancelar" onCancelar={ cancelarFluxoVenda } estilosAlternativos={ {
+            marginBottom: 60
+          } } />
+        </>
+      } }
       renderItem={ ({ item }) => {
 
         return <Pressable
@@ -147,10 +177,6 @@ const SelecionarCliente = ({ navigation }: any) => {
             </View>
         </Pressable>
       } } /> }
-    <BotaoPadrao 
-      titulo="Cancelar" 
-      onPressionar={ cancelarFluxoVenda } 
-      habilitado={ true } />
   </Tela>
 }
 

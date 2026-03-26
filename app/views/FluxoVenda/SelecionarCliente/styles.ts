@@ -20,11 +20,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     borderStyle: "solid",
-    borderWidth: 2,
+    borderWidth: 3,
     borderColor: config.cores.find(c => c.nomeCor === "borda")?.cor ?? "#000"
   },
   clienteSelecionado: {
-    borderColor: config.cores.find(c => c.nomeCor === "primaria")?.cor ?? "#000"
+    borderColor: config.cores.find(c => c.nomeCor === "secundaria")?.cor ?? "#000"
   },
   nomeCliente: {
     color: config.cores.find(c => c.nomeCor === "primaria")?.cor ?? "#000",
@@ -51,10 +51,10 @@ const styles = StyleSheet.create({
     width: 30,
     height: 30,
     borderRadius: "100%",
-    backgroundColor: config.cores.find(c => c.nomeCor === "primario")?.cor ?? "#000",
+    backgroundColor: config.cores.find(c => c.nomeCor === "secundaria")?.cor ?? "#000",
     borderStyle: "solid",
     borderWidth: 2,
-    borderColor: config.cores.find(c => c.nomeCor === "primario")?.cor ?? "#000",
+    borderColor: config.cores.find(c => c.nomeCor === "secundaria")?.cor ?? "#000",
     elevation: 3
   }
 

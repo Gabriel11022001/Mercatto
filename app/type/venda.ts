@@ -16,5 +16,6 @@ export type Venda = {
   status: string;
   clienteId?: string;
   itemsVenda?: Array<ItemVenda>;
+  formaPagamento?: string;
 
 }
