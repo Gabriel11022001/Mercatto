@@ -23,7 +23,7 @@ const styles = StyleSheet.create({
   containerDadosVenda: {
     flex: 1,
     flexDirection: "column",
-    marginTop: 60
+    marginTop: 100
   },
   nomeClienteVenda: {
     fontSize: 16,

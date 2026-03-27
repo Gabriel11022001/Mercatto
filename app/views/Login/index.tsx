@@ -102,10 +102,12 @@ const Login = ({ navigation }: any) => {
 
   // salvar dados do usuário
   const salvarDadosUsuarioSecao = async ({ id, nome, dataUltimoLogin }: Usuario) => {
+    const dataAtual: string = obterDataAtual();
+
     await AsyncStorage.setItem("@usuario_logado", JSON.stringify({
       id: id,
       nome: nome,
-      dataDeslogar: obterDataFormatada(obterDataAcrescidoMinutos(obterDataAtual()))
+      dataDeslogar: obterDataFormatada(obterDataAcrescidoMinutos(dataAtual))
     }));
 
     console.log("Dados do usuário salvos.");

@@ -11,33 +11,33 @@ const validarSecaoUsuario = async (navigation: any) => {
       const usuarioLogado = JSON.parse(usuarioLogadoString);
 
       if (usuarioLogado) {
-          const dataDeslogar: string = usuarioLogado.dataDeslogar;
+        const dataDeslogar: string = usuarioLogado.dataDeslogar;
 
-          const [ dataParte, horarioParte ] = dataDeslogar.trim().split(",");
-          const [ dia, mes, ano ] = dataParte.split("-");
-          const [ hora, minuto, segundo ] = horarioParte.trim().split(":");
+        const [ dataParte, horarioParte ] = dataDeslogar.includes(",") ? dataDeslogar.split(",") : dataDeslogar.split(" ");
+        const [ dia, mes, ano ] = dataParte.split("-");
+        const [ hora, minuto, segundo ] = horarioParte.trim().split(":");
 
-          const dataDeslogarDate: Date = new Date(
-            Number(ano),
-            Number(mes) - 1,
-            Number(dia),
-            Number(hora),
-            Number(minuto),
-            Number(segundo)
-          );
+        const dataDeslogarDate: Date = new Date(
+          Number(ano),
+          Number(mes) - 1,
+          Number(dia),
+          Number(hora),
+          Number(minuto),
+          Number(segundo)
+        );
 
-          const agora: Date = new Date();
+        const agora: Date = new Date();
 
-          if (dataDeslogarDate <= agora) {
-            // deslogar o usuário
-            console.log("Deslogar o usuário.");
-            AsyncStorage.removeItem("@usuario_logado");
-            console.log("Deslogado com sucesso.");
+        if (dataDeslogarDate <= agora) {
+          // deslogar o usuário
+          console.log("Deslogar o usuário.");
+          AsyncStorage.removeItem("@usuario_logado");
+          console.log("Deslogado com sucesso.");
 
-            apresentarAlerta("Sua seção foi expirada, logue novamente.", TipoAlerta.aviso);
+          apresentarAlerta("Sua seção foi expirada, logue novamente.", TipoAlerta.aviso);
 
-            navigation.replace("login");
-          }
+          navigation.replace("login");
+        }
           
       }
 
