@@ -1,20 +1,22 @@
 import CarregandoPrepararFluxoVenda from "@/app/components/CarregandoPrepararFluxoVenda";
 import Tela from "@/app/components/Tela";
 import { listarProdutosFirebase } from "@/app/firebase/gestaoProduto";
-import { registrarVendaInicioFluxo } from "@/app/firebase/gestaoVenda";
+import { buscarVendaPeloIdFirebase, registrarVendaInicioFluxo } from "@/app/firebase/gestaoVenda";
 import listarClientesFirebase from "@/app/firebase/listarClientes";
 import useFluxoVenda from "@/app/hooks/useFluxoVenda";
 import { Cliente } from "@/app/type/cliente";
 import { Produto } from "@/app/type/produto";
 import { Venda } from "@/app/type/venda";
+import { apresentarAlerta, TipoAlerta } from "@/app/utils/apresentarAlertas";
 import { log } from "@/app/utils/log";
 import obterDataAtual from "@/app/utils/obterDataAtual";
 import { useFocusEffect } from "@react-navigation/native";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 // tela que representa o início do fluxo de venda
-const InicioFluxoVenda = ({ navigation }: any) => {
+const InicioFluxoVenda = ({ navigation, route }: any) => {
 
+  const [ idVenda, setIdVenda ] = useState<string>("");
   const { atualizarDadosVenda } = useFluxoVenda();
   const [ carregando, setCarregando ] = useState<boolean>(false);
   const [ erroRealizarVenda, setErroRealizarVenda ] = useState<string>("");
@@ -47,25 +49,45 @@ const InicioFluxoVenda = ({ navigation }: any) => {
           if (produtosAtivos.length === 0) {
             setErroRealizarVenda("Não existem produtos disponíveis para venda, habilite os produtos no aplicativo e tente realizar o fluxo de venda novamente.");
           } else {
-            // registrar a venda vazia
-            const venda: Venda = {
-              dataInicioVenda: obterDataAtual(),
-              valorTotal: 0,
-              status: "rascunho"
+
+            if (idVenda != "") {
+              // buscar a venda no banco de dados para voltar para a mesma
+              const vendaFirebase: Venda | null = await buscarVendaPeloIdFirebase(idVenda);
+
+              if (vendaFirebase != null) {
+                atualizarDadosVenda(vendaFirebase);
+
+                apresentarAlerta("Venda encontrada com sucesso.", TipoAlerta.aviso);
+
+                navigation.replace("selecionar_cliente");
+              } else {
+                apresentarAlerta("Venda não encontrada!", TipoAlerta.erro);
+
+                setErroRealizarVenda("Venda não encontrada na base de dados.");
+              }
+
+            } else {
+              // registrar a venda vazia
+              const venda: Venda = {
+                dataInicioVenda: obterDataAtual(),
+                valorTotal: 0,
+                status: "rascunho"
+              }
+
+              await registrarVendaInicioFluxo(venda);
+
+              log.debug("Iniciando fluxo de venda.", {
+                idVenda: venda.id ?? "",
+                dataInicioVenda: venda.dataInicioVenda,
+                status: "rascunho"
+              });
+
+              // salvar a venda na memória e prosseguir no fluxo da venda, ir para a tela para selecionar o cliente
+              atualizarDadosVenda(venda);
+
+              navigation.replace("selecionar_cliente");
             }
 
-            await registrarVendaInicioFluxo(venda);
-
-            log.debug("Iniciando fluxo de venda.", {
-              idVenda: venda.id ?? "",
-              dataInicioVenda: venda.dataInicioVenda,
-              status: "rascunho"
-            });
-
-            // salvar a venda na memória e prosseguir no fluxo da venda, ir para a tela para selecionar o cliente
-            atualizarDadosVenda(venda);
-
-            navigation.replace("selecionar_cliente");
           }
 
         }
@@ -82,8 +104,19 @@ const InicioFluxoVenda = ({ navigation }: any) => {
 
   }
 
-  useFocusEffect(useCallback(() => {
+  useEffect(() => {
     prepararInicioVenda();
+  }, [ idVenda ]);
+
+  useFocusEffect(useCallback(() => {
+
+    if (route.params && route.params.idVenda) {
+      // buscar a venda e continuar a mesma
+      setIdVenda(route.params.idVenda);
+    } else {
+      setIdVenda("");
+    }
+    
   }, []));
 
   return <Tela>

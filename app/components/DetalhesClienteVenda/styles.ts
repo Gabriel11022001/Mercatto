@@ -9,14 +9,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: config.cores.find(c => c.nomeCor === "borda")?.cor ?? "#000",
     borderStyle: "solid",
-    width: "90%",
-    marginStart: "5%",
-    marginEnd: "5%",
+    width: "100%",
     marginTop: 20,
     marginBottom: 20,
     flexDirection: "column",
-    elevation: 10,
-    borderRadius: 10
+    elevation: 10
   },
   topo: {
     width: "100%",

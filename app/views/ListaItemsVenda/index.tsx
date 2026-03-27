@@ -13,11 +13,12 @@ type Props = {
 const ListaItemsVenda = ({ items }: Props) => {
 
   return <View>
+    <Text style={ styles.tituloProdutos }>Produtos</Text>
     { items.map((itemVenda: ItemVendaDetalhes, index) => {
 
       return <View style={ [
         styles.item,
-        index === 0 && { marginTop: 40 },
+        index === 0 && { marginTop: 10 },
         index === items.length - 1 && { marginBottom: 40 }
       ] }>
         <Text style={ styles.nomeProduto }>{ itemVenda.produto?.nomeProduto ?? "" }</Text>
@@ -33,6 +34,13 @@ const ListaItemsVenda = ({ items }: Props) => {
 
 const styles = StyleSheet.create({
   
+  tituloProdutos: {
+    fontSize: 25,
+    fontWeight: "bold",
+    color: config.cores.find(c => c.nomeCor === "secundaria")?.cor ?? "#000",
+    marginStart: "5%",
+    marginTop: 20
+  },
   item: {
     width: "100%",
     padding: 20,
@@ -41,7 +49,7 @@ const styles = StyleSheet.create({
     borderStyle: "solid",
     borderBottomColor: config.cores.find(c => c.nomeCor === "borda")?.cor ?? "#000",
     borderBottomWidth: 1,
-    elevation: 1
+    elevation: 5
   },
   nomeProduto: {
     color: config.cores.find(c => c.nomeCor === "primaria")?.cor ?? "#000",

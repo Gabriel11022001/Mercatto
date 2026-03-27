@@ -6,10 +6,12 @@ import { buscarVendaPeloIdFirebase, deletarVendaFirebase } from "@/app/firebase/
 import { Venda } from "@/app/type/venda";
 import { apresentarAlerta, TipoAlerta } from "@/app/utils/apresentarAlertas";
 import { log } from "@/app/utils/log";
+import obterValorMonetario from "@/app/utils/obterValorMonetario";
 import { useFocusEffect } from "@react-navigation/native";
 import { useCallback, useEffect, useState } from "react";
-import { ScrollView } from "react-native";
+import { ScrollView, Text, View } from "react-native";
 import ListaItemsVenda from "../ListaItemsVenda";
+import styles from "./styles";
 
 // tela com os detalhes da venda
 const DetalhesVenda = ({ navigation, route }: any) => {
@@ -62,7 +64,7 @@ const DetalhesVenda = ({ navigation, route }: any) => {
 
   // concluir a venda em rascunho
   const concluirVenda = (): void => {
-
+    navigation.replace("inicio_fluxo_venda", { idVenda: venda?.id ?? "" });
   }
 
   // deletar a venda
@@ -89,6 +91,31 @@ const DetalhesVenda = ({ navigation, route }: any) => {
   return <Tela>  
     <Loader carregando={ carregando } />
     <ScrollView showsVerticalScrollIndicator={ false }>
+      { /** código da venda */ }
+      <View style={ styles.containerDadoVenda }>
+        <Text style={ styles.tituloDado }>Código da Venda</Text>
+        <Text style={ styles.dado }>{ venda?.id ?? "" }</Text>
+      </View>
+      { /** Valor total */ }
+      <View style={ styles.containerDadoVenda }>
+        <Text style={ styles.tituloDado}>Valor Total</Text>
+        <Text style={ styles.dado}>R${ obterValorMonetario(venda?.valorTotal.toString() ?? "") }</Text>
+      </View>
+      { /** data de início da venda */ }
+      <View style={ styles.containerDadoVenda }>
+        <Text style={ styles.tituloDado}>Data de Início</Text>
+        <Text style={ styles.dado}>{ venda?.dataInicioVenda ?? "" }</Text>
+      </View>
+      { /** data de conclusão da venda */ }
+      { venda && venda.dataConclusaoVenda && <View style={ styles.containerDadoVenda }>
+        <Text style={ styles.tituloDado}>Data de Conclusão</Text>
+        <Text style={ styles.dado}>{ venda?.dataConclusaoVenda ?? "" }</Text>
+      </View> }
+      { /** status da venda */ }
+      <View style={ styles.containerDadoVenda }>
+        <Text style={ styles.tituloDado}>Status</Text>
+        <Text style={ styles.dado}>{ venda?.status.toUpperCase() }</Text>
+      </View>
       { /** apresentar os detalhes do cliente da venda */ }
       {  (venda && venda.cliente != null) && <DetalhesClienteVenda cliente={ venda.cliente } /> }
       { /** apresentar a lista com os items da venda */ }
