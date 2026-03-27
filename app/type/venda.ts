@@ -1,3 +1,5 @@
+import { Cliente } from "./cliente";
+
 export type ItemVenda = {
 
   id?: string;
@@ -17,5 +19,6 @@ export type Venda = {
   clienteId?: string;
   itemsVenda?: Array<ItemVenda>;
   formaPagamento?: string;
+  cliente?: Cliente;
 
 }

@@ -198,7 +198,7 @@ const Home = ({ navigation }: any) => {
             <Text style={ styles.txtOpcao }>Realizar Venda</Text>
           </Pressable>
           { /** listar vendas */ }
-          <Pressable onPress={ () => {} } style={ ({ pressed }) => {
+          <Pressable onPress={ () => { navigation.navigate("vendas") } } style={ ({ pressed }) => {
 
             if (pressed) {
 

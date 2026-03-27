@@ -18,6 +18,7 @@ import Home from '../views/Home';
 import Login from '../views/Login';
 import Produtos from '../views/Produtos';
 import SplashScreen from '../views/SplashScreen';
+import Vendas from '../views/Vendas';
 
 const Navigation = () => {
 
@@ -102,6 +103,11 @@ const Navigation = () => {
       nome: "forma_pagamento",
       componente: FormaPagamento,
       titulo: "Forma de Pagamento"
+    },
+    {
+      nome: "vendas",
+      componente: Vendas,
+      titulo: "Vendas"
     }
   ];
 

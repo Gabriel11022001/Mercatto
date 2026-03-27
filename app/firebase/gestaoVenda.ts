@@ -1,7 +1,9 @@
 import { db } from "@/firebase_config";
-import { addDoc, collection, doc, updateDoc } from "firebase/firestore";
+import { addDoc, collection, doc, getDocs, updateDoc } from "firebase/firestore";
+import { Cliente } from "../type/cliente";
 import { Produto } from "../type/produto";
 import { ItemVenda, Venda } from "../type/venda";
+import { buscarClientePeloIdFirebase } from "./buscarCliente";
 import { buscarProdutoPeloIdFirebase } from "./gestaoProduto";
 
 // registrar venda no inicio do fluxo
@@ -100,6 +102,46 @@ export const definirVendaRascunhoFirebase = async (venda: Venda) => {
 
     console.log("Venda salva como rascunho: " + venda.id);
   } catch (e) {
+
+    throw e;
+  }
+
+}
+
+// listar as vendas no firebase
+export const listarVendasFirebase = async () => {
+
+  try {
+    const querySnapshot = await getDocs(collection(db, "vendas"));
+
+    const vendas: Array<Venda> = [];
+
+    for (const v of querySnapshot.docs) {
+      // buscar dados do cliente
+      let cliente: Cliente | null = null;
+
+      if (v.data().cliente_id) {
+        cliente = await buscarClientePeloIdFirebase(v.data().cliente_id);
+      }
+      
+      const venda: Venda = {
+        id: v.id,
+        dataInicioVenda: v.data().data_inicio_venda,
+        dataConclusaoVenda: v.data().data_conclusao,
+        status: v.data().status,
+        valorTotal: v.data().valor_total,
+        cliente: cliente ?? undefined,
+        clienteId: v.data().cliente_id,
+        formaPagamento: v.data().forma_pagamento,
+        itemsVenda: []
+      }
+
+      vendas.push(venda);
+    }
+
+    return vendas;
+  } catch (e) {
+    console.log(e);
 
     throw e;
   }
