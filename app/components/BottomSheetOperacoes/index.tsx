@@ -44,8 +44,6 @@ const BottomSheetOperacoes = ({
     return null;
   }
  
-  console.log(operacoes);
-
   return (
     <View style={ {
       position: "absolute",

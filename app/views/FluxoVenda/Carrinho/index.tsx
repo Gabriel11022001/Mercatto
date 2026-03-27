@@ -66,7 +66,6 @@ const Carrinho = ({ navigation }: any) => {
       console.log("Cliente encontrado com sucesso...");
 
       if (venda?.itemsVenda && venda.itemsVenda.length > 0) {
-        console.log(venda.itemsVenda);
         const itemsVendaCarrinho: Array<ItemCarrinho> = [];
 
         for (let i: number = 0; i < venda.itemsVenda.length; i++) {

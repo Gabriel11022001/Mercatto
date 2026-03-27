@@ -39,7 +39,6 @@ export const atualizarVenda = async (venda: Venda) => {
     });
 
     console.log("Venda atualizada com sucesso.");
-    console.log(venda);
 
     if (venda.itemsVenda && venda.itemsVenda.length > 0) {
 

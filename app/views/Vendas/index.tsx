@@ -28,7 +28,6 @@ const Vendas = ({ navigation }: any) => {
       setVendas(vendas);
 
       console.log("Vendas listadas com sucesso, quantidade de vendas: " + vendas.length);
-      console.log(vendas);
     } catch (e) {
       log.erro(`Erro ao tentar-se listar as vendas: ${ e }`);
 

@@ -8,7 +8,6 @@ export const FluxoVendaProvider = ({ children }: any) => {
   const [ venda, setVenda ] = useState<Venda | null>(null);
 
   const atualizarDadosVenda = (vendaAtualizada: Venda): void => {
-    console.log(venda);
     setVenda(vendaAtualizada);
   }
 
