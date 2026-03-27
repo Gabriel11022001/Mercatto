@@ -1,6 +1,7 @@
 import { Cliente } from "./cliente";
+import { Produto } from "./produto";
 
-export type ItemVenda = {
+export interface ItemVenda {
 
   id?: string;
   valorUnitarioProduto: number;
@@ -20,5 +21,12 @@ export type Venda = {
   itemsVenda?: Array<ItemVenda>;
   formaPagamento?: string;
   cliente?: Cliente;
+  itemsVendaDetalhes?: Array<ItemVendaDetalhes>;
+
+}
+
+export interface ItemVendaDetalhes extends ItemVenda {
+
+  produto?: Produto;
 
 }

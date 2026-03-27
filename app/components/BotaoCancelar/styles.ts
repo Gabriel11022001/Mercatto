@@ -17,7 +17,8 @@ export const styles = StyleSheet.create({
     justifyContent: "center",
     height: 60,
     padding: 10,
-    borderRadius: 10
+    borderRadius: 10,
+    flexDirection: "row"
   },
   textoBotao: {
     color: config.cores.find(c => c.nomeCor === "primaria")?.cor ?? "#000",

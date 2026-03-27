@@ -1,4 +1,5 @@
 import AlertaNaoExistemDados from "@/app/components/AlertaNaoExistemDados";
+import Loader from "@/app/components/Loader";
 import Tela from "@/app/components/Tela";
 import { VendaItem } from "@/app/components/VendaItem";
 import { listarVendasFirebase } from "@/app/firebase/gestaoVenda";
@@ -43,6 +44,7 @@ const Vendas = ({ navigation }: any) => {
   }, []));
 
   return <Tela>
+    <Loader carregando={ carregando } />
     { vendas.length === 0 ? <AlertaNaoExistemDados mensagem="Não existem vendas cadastradas na base de dados." />
     : <FlatList
       style={ { backgroundColor: "#fff" } }
@@ -57,7 +59,7 @@ const Vendas = ({ navigation }: any) => {
 
             } }
             onVisualizar={ () => {
-
+              navigation.navigate("detalhes_venda", { idVenda: item.id ?? "" });
             } } />
         );
       } } /> }

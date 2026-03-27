@@ -1,8 +1,8 @@
 import { db } from "@/firebase_config";
-import { addDoc, collection, doc, getDocs, updateDoc } from "firebase/firestore";
+import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, query, updateDoc, where } from "firebase/firestore";
 import { Cliente } from "../type/cliente";
 import { Produto } from "../type/produto";
-import { ItemVenda, Venda } from "../type/venda";
+import { ItemVenda, ItemVendaDetalhes, Venda } from "../type/venda";
 import { buscarClientePeloIdFirebase } from "./buscarCliente";
 import { buscarProdutoPeloIdFirebase } from "./gestaoProduto";
 
@@ -142,6 +142,125 @@ export const listarVendasFirebase = async () => {
     return vendas;
   } catch (e) {
     console.log(e);
+
+    throw e;
+  }
+
+}
+
+// buscar os items da venda
+export const buscarItemsVendaFirebase = async (idVenda: string) => {
+
+  try {
+    const q = query(
+      collection(db, "items"),
+      where("venda_id", "==", idVenda)
+    );
+
+    const querySnapshot = await getDocs(q);
+
+    const items: Array<ItemVendaDetalhes> = [];
+
+    for (const item of querySnapshot.docs) {
+      // buscar o produto
+      const prod: Produto | null = await buscarProdutoPeloIdFirebase(item.data().produto_id);
+      
+      items.push({
+        id: item.id,
+        unidades: item.data().unidades,
+        valorUnitarioProduto: item.data().valor_unitario_produto,
+        produtoId: item.data().produto_id,
+        produto: prod ?? undefined
+      });
+    }
+
+    return items;
+  } catch (e) {
+    
+    throw e;
+  }
+
+}
+
+// biuscar a venda pelo id no firebase
+export const buscarVendaPeloIdFirebase = async (id: string) => {
+
+  try {
+    const vendaRef = doc(db, "vendas", id);
+    const snapshot = await getDoc(vendaRef);
+
+    if (snapshot.exists()) {
+      // consultar o cliente
+      const idClienteVenda: string | undefined = snapshot.data().cliente_id;
+      let cliente: Cliente | null = null;
+
+      if (idClienteVenda) {
+        cliente = await buscarClientePeloIdFirebase(idClienteVenda);
+      }
+
+      // buscar os itens da venda
+      const items: Array<ItemVendaDetalhes> = await buscarItemsVendaFirebase(snapshot.id);
+    
+      const venda: Venda = {
+        id: id,
+        dataInicioVenda: snapshot.data().data_inicio_venda,
+        dataConclusaoVenda: snapshot.data().data_conclusao,
+        status: snapshot.data().status,
+        valorTotal: snapshot.data().valor_total,
+        cliente: cliente ?? undefined,
+        clienteId: idClienteVenda ?? undefined,
+        formaPagamento: snapshot.data().forma_pagamento ?? "",
+        itemsVenda: items.map((itemDetalhes: ItemVendaDetalhes) => {
+
+          return {
+            id: itemDetalhes.id,
+            unidades: itemDetalhes.unidades,
+            produtoId: itemDetalhes.produtoId ?? "",
+            valorUnitarioProduto: itemDetalhes.valorUnitarioProduto
+          };
+        }),
+        itemsVendaDetalhes: items
+      }
+
+      return venda;
+    } else {
+    
+      return null
+    }
+
+  } catch (e) {
+    
+    throw e;
+  }
+
+}
+
+// deletar a venda no firebase
+export const deletarVendaFirebase = async (vendaDeletar: Venda | null) => {
+
+  try {
+
+    if (vendaDeletar == null) {
+
+      return;
+    }
+
+    if (vendaDeletar.itemsVenda != null && vendaDeletar.itemsVenda.length > 0) {
+
+      for (const itemDeletar of vendaDeletar.itemsVenda) {
+        // deletar item por item da venda
+        await deleteDoc(doc(db, "items", itemDeletar.id ?? ""));
+
+        console.log("Item " + (itemDeletar.id ?? "") + " deletado com sucesso da base de dados.");
+      }
+
+    }
+
+    // deletar a venda
+    await deleteDoc(doc(db, "vendas", vendaDeletar.id ?? ""));
+
+    console.log("Venda deletada com sucesso: " + (vendaDeletar.id ?? ""));
+  } catch (e) {
 
     throw e;
   }

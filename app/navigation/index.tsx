@@ -9,6 +9,7 @@ import CadastroProduto from '../views/CadastroProduto';
 import CadastroUsuario from '../views/CadastroUsuario';
 import Categorias from '../views/Categorias';
 import Clientes from '../views/Clientes';
+import DetalhesVenda from '../views/DetalhesVenda';
 import AdicionarProdutoCarrinho from '../views/FluxoVenda/AdicionarProdutoCarrinho';
 import Carrinho from '../views/FluxoVenda/Carrinho';
 import FormaPagamento from '../views/FluxoVenda/FormaPagamento';
@@ -108,6 +109,11 @@ const Navigation = () => {
       nome: "vendas",
       componente: Vendas,
       titulo: "Vendas"
+    },
+    {
+      nome: "detalhes_venda",
+      componente: DetalhesVenda,
+      titulo: "Detalhes da Venda"
     }
   ];
 
@@ -130,7 +136,9 @@ const Navigation = () => {
                 headerTintColor: config.cores.find(cor => cor.nomeCor === "branco")?.cor ?? "#fff",
                 headerRight: () => {
 
-                  if (tela.nome === "clientes" || tela.nome === "categorias") {
+                  if (tela.nome === "clientes" || tela.nome === "categorias"
+                    || tela.nome === "vendas" || tela.nome === "produtos"
+                  ) {
                     let telaRedirecionar: string = "";
 
                     if (tela.nome === "clientes") {
@@ -140,7 +148,7 @@ const Navigation = () => {
                     } else if (tela.nome === "produtos") {
                       telaRedirecionar = "cadastro_produto";
                     } else if (tela.nome === "vendas") {
-                      telaRedirecionar = "nova_venda";
+                      telaRedirecionar = "inicio_fluxo_venda";
                     }
 
                     return <Pressable
