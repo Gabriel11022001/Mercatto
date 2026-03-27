@@ -168,7 +168,11 @@ const SelecionarCliente = ({ navigation }: any) => {
               styles.radio,
               clienteSelecionado != null && clienteSelecionado.id === item.id && styles.radioSelecionado
             ] } />
-            <View>
+            <View style={ {
+              flex: 1,
+              alignItems: "flex-start",
+              marginStart: 20
+            } }>
               <Text style={ styles.nomeCliente }>{ item.nome }</Text>
               <Text style={ styles.dado }>{ item.cpf }</Text>
               <Text style={ styles.dado }>{ item.email }</Text>
