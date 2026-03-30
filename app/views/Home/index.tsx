@@ -15,7 +15,7 @@ import SimpleLineIcons from '@expo/vector-icons/SimpleLineIcons';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
 import { useCallback, useState } from "react";
-import { Image, Pressable, ScrollView, Text, View } from "react-native";
+import { Alert, BackHandler, Image, Pressable, ScrollView, Text, View } from "react-native";
 import styles from "./styles";
 
 // tela home do app
@@ -74,6 +74,38 @@ const Home = ({ navigation }: any) => {
     validarSecaoUsuario(navigation);
     obterNomeUsuarioLogado();
   }, []));
+
+  // controlar botão de voltar do android
+  useFocusEffect(
+    useCallback(() => {
+      
+      const backAction = () => {
+        Alert.alert("Atenção!", "Deseja mesmo sair do aplicativo?", [
+          {
+            text: "Não",
+            style: "cancel",
+            onPress: () => null,
+          },
+          {
+            text: "Sim",
+            style: "default",
+            onPress: () => {
+              logout();
+            },
+          },
+        ]);
+
+        return true;
+      };
+
+      const backHandler = BackHandler.addEventListener(
+        "hardwareBackPress",
+        backAction
+      );
+
+      return () => backHandler.remove();
+    }, [])
+  );
 
   return (
     <Tela>
