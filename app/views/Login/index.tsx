@@ -127,7 +127,7 @@ const Login = ({ navigation }: any) => {
         if (usuarioLogadoJson) {
           const dataDeslogar: string = usuarioLogadoJson.dataDeslogar;
 
-          const [ dataParte, horarioParte ] = dataDeslogar.trim().split(",");
+          const [ dataParte, horarioParte ] = dataDeslogar.includes(",") ? dataDeslogar.split(",") : dataDeslogar.split(" ");
           const [ dia, mes, ano ] = dataParte.split("-");
           const [ hora, minuto, segundo ] = horarioParte.trim().split(":");
 
@@ -160,6 +160,10 @@ const Login = ({ navigation }: any) => {
 
     } catch (e) {
       await log.erro(`Erro login automático: ${ e }`);
+
+      console.error(`Erro no login automático: ${ e }`);
+
+      apresentarAlerta("Erro no login automático!", TipoAlerta.erro);
     } finally {
       setCarregando(false);
     }

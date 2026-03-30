@@ -366,11 +366,17 @@ const CadastroProduto = ({ navigation, route }: any) => {
   }
 
   useEffect(() => {
-    buscarProdutoPeloId(route.params.idProdutoEditar ?? "");
+    
+    if (produtoEditarId != "") {
+      buscarProdutoPeloId(produtoEditarId);
+    }
+
   }, [ categorias, produtoEditarId ]);
 
   useFocusEffect(useCallback(() => {
     listarCategoriasProduto();
+
+    console.log(route);
 
     if (route.params && route.params.idProdutoEditar != null) {
       setProdutoEditarId(route.params.idProdutoEditar);
