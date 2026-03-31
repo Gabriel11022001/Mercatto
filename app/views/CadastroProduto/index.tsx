@@ -3,7 +3,7 @@ import Campo, { TipoCampo } from "@/app/components/Campo";
 import Loader from "@/app/components/Loader";
 import Tela from "@/app/components/Tela";
 import { listarCategoriasFirebase } from "@/app/firebase/gestaoCategoria";
-import { buscarProdutoPeloIdFirebase, buscarProdutoPeloNomeFirebase, cadastrarProdutoFirebase } from "@/app/firebase/gestaoProduto";
+import { buscarProdutoPeloIdFirebase, buscarProdutoPeloNomeFirebase, cadastrarProdutoFirebase, editarProdutoFirebase } from "@/app/firebase/gestaoProduto";
 import CategoriaProduto from "@/app/type/categoriaProduto";
 import { Produto, StatusProduto } from "@/app/type/produto";
 import { apresentarAlerta, TipoAlerta } from "@/app/utils/apresentarAlertas";
@@ -64,7 +64,7 @@ const CadastroProduto = ({ navigation, route }: any) => {
       // nome do produto
       case TipoCampoProduto.nome_produto:
         setErroNomeProduto("");
-        setNomeProduto(valorDigitado.toUpperCase());
+        setNomeProduto(valorDigitado);
 
         if (valorDigitado.trim().length === 0) {
           setErroNomeProduto("Informe um nome para o produto.");
@@ -121,8 +121,18 @@ const CadastroProduto = ({ navigation, route }: any) => {
       // preço com desconto
       case TipoCampoProduto.preco_com_desconto:
         setErroPrecoComDesconto("");
-        setPrecoComDesconto(valorDigitado.replace("R$", "")
-          .trim());
+
+        const precoDescontoDigitadoSemCaracter: string = valorDigitado
+          .replace("R$", "")
+          .trim();
+
+        if (precoDescontoDigitadoSemCaracter === "0,00") {
+          setPrecoComDesconto(null);
+
+          return;
+        }
+
+        setPrecoComDesconto(precoDescontoDigitadoSemCaracter);
 
         if (valorDigitado.length > 0) {
 
@@ -203,12 +213,17 @@ const CadastroProduto = ({ navigation, route }: any) => {
         return;
       }
 
+      log.debug("Cadastrando o produto na base de dados.", produtoCadastrar);
+
       // cadastrar o produto
       await cadastrarProdutoFirebase(produtoCadastrar);
+
+      log.debug("Produto cadastrado na base de dados.", produtoCadastrar);
 
       apresentarAlerta("Produto cadastrado com sucesso.", TipoAlerta.sucesso);
       
       // redirecionar o usuário para a tela de listagem de produtos
+      navigation.replace("produtos");
     } catch (e) {
       console.error(`Erro ao tentar-se cadastrar o produto: ${ e }`);
       
@@ -221,6 +236,56 @@ const CadastroProduto = ({ navigation, route }: any) => {
 
   // editar produto
   const editar = async () => {
+
+    try {
+      setCarregando(true);
+
+      const produtoEditar: Produto = {
+        id: produtoEditarId,
+        ativo: ativo,
+        descricao: descricao,
+        nomeProduto: nomeProduto,
+        estoque: parseInt(estoque.trim()),
+        statusEstoque: parseInt(estoque) > 0 ? "estoque_disponivel" : "sem_estoque",
+        categoria: {
+          id: categoria?.id ?? "",
+          status: true,
+          nomeCategoria: categoria?.nomeCategoria ?? ""
+        },
+        preco: parseFloat(preco.replace(",", ".").replace(".", "").trim()) / 100,
+        precoComDesconto: precoComDesconto != null && precoComDesconto != "" ? 
+          parseFloat(precoComDesconto.replace(",", ".").replace(".", "").trim()) / 100 
+          : undefined
+      }
+
+      // validar se existe outro produto cadastrado com o mesmo nome
+      const produtoCadastradoMesmoNome: Produto | null = await buscarProdutoPeloNomeFirebase(produtoEditar.nomeProduto);
+
+      if (produtoCadastradoMesmoNome != null && produtoCadastradoMesmoNome.id != produtoEditarId) {
+        setCarregando(false);
+
+        apresentarAlerta("Existe outro produto cadastrado com o mesmo nome.", TipoAlerta.erro);
+
+        return;
+      }
+
+      console.log("Salvando os dados do produto na base de dados...");
+      log.debug("Editando o produto na base de dados.", produtoEditar);
+
+      await editarProdutoFirebase(produtoEditar);
+
+      log.debug("Produto editado na base de dados.", produtoEditar);
+
+      apresentarAlerta("Produto salvo com sucesso.", TipoAlerta.sucesso);
+
+      navigation.replace("produtos");
+    } catch (e) {
+      log.erro(`Erro ao tentar-se editar o produto ${ produtoEditarId }: ${ e }`);
+      
+      apresentarAlerta("Erro ao tentar-se editar o produto.", TipoAlerta.erro);
+    } finally {
+      setCarregando(false);
+    }
 
   }
 
@@ -375,8 +440,6 @@ const CadastroProduto = ({ navigation, route }: any) => {
 
   useFocusEffect(useCallback(() => {
     listarCategoriasProduto();
-
-    console.log(route);
 
     if (route.params && route.params.idProdutoEditar != null) {
       setProdutoEditarId(route.params.idProdutoEditar);

@@ -1,5 +1,5 @@
 import { db } from "@/firebase_config";
-import { addDoc, collection, doc, getDoc, getDocs, query, where } from "firebase/firestore";
+import { addDoc, collection, doc, getDoc, getDocs, query, updateDoc, where } from "firebase/firestore";
 import { Produto } from "../type/produto";
 import { buscarCategoriaPeloIdFirebase } from "./gestaoCategoria";
 
@@ -76,6 +76,26 @@ export const listarProdutosFirebase = async () => {
 
 // editar produto no firebase
 export const editarProdutoFirebase = async (produto: Produto) => {
+
+  try {
+    const docRef = doc(db, "produtos", produto.id ?? "");
+    
+    await updateDoc(docRef, {
+      nome_produto: produto.nomeProduto,
+      ativo: produto.ativo,
+      estoque: produto.estoque,
+      status_estoque: produto.statusEstoque,
+      descricao: produto.descricao,
+      categoria_produto_id: produto.categoria?.id ?? "",
+      preco: produto.preco,
+      preco_com_desconto: produto.precoComDesconto ?? ""
+    });
+
+    console.log("Produto editado com sucesso.");
+  } catch (e) {
+
+    throw e;
+  }
 
 }
 
@@ -162,6 +182,25 @@ export const buscarProdutoPeloIdFirebase = async (id: string) => {
 
   } catch (e) {
 
+    throw e;
+  }
+
+}
+
+// validar se o produto está vinculado a vendas na base de dados
+export const validarProdutoVinculadoVendas = async (id: string) => {
+
+  try {
+    const q = query(
+      collection(db, "items"),
+      where("produto_id", "==", id)
+    );
+
+    const querySnapshot = await getDocs(q);
+
+    return !querySnapshot.empty;
+  } catch (e) {
+  
     throw e;
   }
 

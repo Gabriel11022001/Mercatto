@@ -20,7 +20,8 @@ const ListaItemsVenda = ({ items }: Props) => {
         styles.item,
         index === 0 && { marginTop: 10 },
         index === items.length - 1 && { marginBottom: 40 }
-      ] }>
+      ] }
+      key={ itemVenda.id ?? "" }>
         <Text style={ styles.nomeProduto }>{ itemVenda.produto?.nomeProduto ?? "" }</Text>
         <Text style={ styles.dado }>Preço Uni. R${ obterValorMonetario(itemVenda.valorUnitarioProduto.toString()) }</Text>
         <Text style={ styles.dado }>Uni. Adquiridas: { itemVenda.unidades }</Text>

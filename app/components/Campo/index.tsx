@@ -293,7 +293,7 @@ const Campo = ({
         inputMode={ getModoTecladoCampo() }
         keyboardType={ getTipoCampo() }
         autoCapitalize={ tipoCampo === TipoCampo.nome || tipoCampo === TipoCampo.nomeCategoria
-          || tipoCampo === TipoCampo.nomeUsuario ? "sentences" : "none"
+          || tipoCampo === TipoCampo.nomeUsuario ? "characters" : "none"
          } />
       { tipoCampo === TipoCampo.senha && <TouchableOpacity onPress={ () => {
         onVisualizarSenha();

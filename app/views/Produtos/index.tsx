@@ -2,7 +2,7 @@ import AlertaNaoExistemDados from "@/app/components/AlertaNaoExistemDados";
 import Loader from "@/app/components/Loader";
 import { ProdutoItem } from "@/app/components/ProdutoItem";
 import Tela from "@/app/components/Tela";
-import { listarProdutosFirebase } from "@/app/firebase/gestaoProduto";
+import { deletarProdutoFirebase, listarProdutosFirebase, validarProdutoVinculadoVendas } from "@/app/firebase/gestaoProduto";
 import { Produto } from "@/app/type/produto";
 import { apresentarAlerta, TipoAlerta } from "@/app/utils/apresentarAlertas";
 import { log } from "@/app/utils/log";
@@ -65,6 +65,36 @@ const Produtos = ({ navigation, route }: any) => {
 
   }
 
+  // deletar o produto na base de dados
+  const deletarProduto = async (idProdutoDeletar: string) => {
+
+    try {
+      setCarregando(true);
+
+      // validar se o produto está vinculado a vendas
+      if (await validarProdutoVinculadoVendas(idProdutoDeletar)) {
+        apresentarAlerta("Produto vinculado a venda!", TipoAlerta.aviso);
+
+        return;
+      }
+
+      await deletarProdutoFirebase(idProdutoDeletar);
+
+      log.debug("Produto " + idProdutoDeletar + " deletado com sucesso.");
+
+      apresentarAlerta("Produto deletado com sucesso.", TipoAlerta.sucesso);
+
+      await listarProdutos();
+    } catch (e) {
+      log.erro(`Erro ao tentar-se deletar o produto ${ idProdutoDeletar }: ${ e }`);
+
+      apresentarAlerta("Erro ao tentar-se deletar o produto.", TipoAlerta.erro);
+    } finally {
+      setCarregando(false);
+    }
+
+  }
+
   useFocusEffect(useCallback(() => {
     listarProdutos();
   }, []));
@@ -87,7 +117,7 @@ const Produtos = ({ navigation, route }: any) => {
             visualizarEditarProduto(item.id ?? "");
           } }
           onDeletar={ () => {
-
+            deletarProduto(item.id ?? "");
           } }
           onAlterarStatus={ () => {
             alterarStatusProduto(item);
