@@ -1,5 +1,5 @@
 import { db } from "@/firebase_config";
-import { addDoc, collection, doc, getDocs, query, updateDoc, where } from "firebase/firestore";
+import { addDoc, collection, doc, getDoc, getDocs, query, updateDoc, where } from "firebase/firestore";
 import { Usuario } from "../type/usuario";
 import obterDataAtual from "../utils/obterDataAtual";
 
@@ -76,6 +76,55 @@ export const buscarUsuarioPeloEmailSenha = async (email: string, senha: string) 
 
     return usuario;
   } catch (e) {
+
+    throw e;
+  }
+
+}
+
+// buscar o usuário no firebase pelo id
+export const buscarUsuarioPeloId = async (id: string) => {
+
+  try {
+    const usuarioRef = doc(db, "usuarios", id);
+    const snapshot = await getDoc(usuarioRef);
+
+    if (snapshot.exists()) {
+      const usuario: Usuario = {
+        id: id,
+        ativo: snapshot.data().ativo,
+        email: snapshot.data().email,
+        nome: snapshot.data().nome,
+        senha: snapshot.data().senha,
+        telefone: snapshot.data().telefone
+      }
+
+      return usuario;
+    } else {
+
+      return null;
+    }
+
+  } catch (e) {
+    
+    throw e;
+  }
+
+}
+
+// alterar a senha do usuário no firebase
+export const alterarSenhaUsuarioFirebase = async (idUsuario: string, novaSenha: string) => {
+
+  try {
+    const docRef = doc(db, "usuarios", idUsuario);
+
+    await updateDoc(docRef, {
+      senha: novaSenha
+    });
+
+    console.log("senha alterada com sucesso.");
+  } catch (e) {
+    console.log("erro ao tentar-se alterar a senha: " + e);
 
     throw e;
   }

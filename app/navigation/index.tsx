@@ -17,6 +17,7 @@ import InicioFluxoVenda from '../views/FluxoVenda/InicioFluxoVenda';
 import SelecionarCliente from '../views/FluxoVenda/SelecionarCliente';
 import Home from '../views/Home';
 import Login from '../views/Login';
+import Perfil from '../views/Perfil';
 import Produtos from '../views/Produtos';
 import SplashScreen from '../views/SplashScreen';
 import Vendas from '../views/Vendas';
@@ -114,6 +115,11 @@ const Navigation = () => {
       nome: "detalhes_venda",
       componente: DetalhesVenda,
       titulo: "Detalhes da Venda"
+    },
+    {
+      nome: "perfil",
+      componente: Perfil,
+      titulo: "Perfil"
     }
   ];
 

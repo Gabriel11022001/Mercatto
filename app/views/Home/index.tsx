@@ -250,7 +250,7 @@ const Home = ({ navigation }: any) => {
           { marginBottom: 100 }
         ] }>
           { /** perfil do usuário */ }
-          <Pressable onPress={ () => {} } style={ ({ pressed }) => {
+          <Pressable onPress={ () => { navigation.navigate("perfil") } } style={ ({ pressed }) => {
 
             if (pressed) {
 

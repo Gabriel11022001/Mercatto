@@ -3,8 +3,10 @@ import ClienteItem from "@/app/components/ClienteItem";
 import Loader from "@/app/components/Loader";
 import Tela from "@/app/components/Tela";
 import deletarClienteFirebase from "@/app/firebase/deletarCliente";
+import { listarVendasFirebase } from "@/app/firebase/gestaoVenda";
 import listarClientesFirebase from "@/app/firebase/listarClientes";
 import { Cliente } from "@/app/type/cliente";
+import { Venda } from "@/app/type/venda";
 import { apresentarAlerta, TipoAlerta } from "@/app/utils/apresentarAlertas";
 import { log } from "@/app/utils/log";
 import validarSecaoUsuario from "@/app/utils/validarSecaoUsuario";
@@ -49,6 +51,20 @@ const Clientes = ({ navigation }: any) => {
     setCarregando(true);
 
     try {
+      
+      // validar se o cliente está vinculado a venda
+      const vendas: Array<Venda> = await listarVendasFirebase();
+
+      if (vendas.length > 0) {
+        
+        if (vendas.find(v => v.clienteId === clienteDeletar.id) != null) {
+          apresentarAlerta("O cliente está vinculado a vendas.", TipoAlerta.aviso);
+
+          return;
+        }
+
+      }
+
       await deletarClienteFirebase(idClienteDeletar);
 
       // apresentar alerta de sucesso para o usuário
