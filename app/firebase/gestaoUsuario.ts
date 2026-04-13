@@ -82,6 +82,42 @@ export const buscarUsuarioPeloEmailSenha = async (email: string, senha: string) 
 
 }
 
+// buscar o usuário no firebase pelo e-mail
+export const buscarUsuarioPeloEmail = async (email: string) => {
+
+  try {
+    const queryConsultarUsuario = query(
+      collection(db, "usuarios"),
+      where("email", "==", email.trim())
+    );
+
+    const querySnapshot = await getDocs(queryConsultarUsuario);
+
+    if (querySnapshot.empty) {
+
+      return null;
+    }
+
+    const usuario: Usuario = {
+      id: querySnapshot.docs[ 0 ].id,
+      nome: querySnapshot.docs[ 0 ].data().nome,
+      email: querySnapshot.docs[ 0 ].data().email,
+      telefone: querySnapshot.docs[ 0 ].data().telefone,
+      senha: querySnapshot.docs[ 0 ].data().senha,
+      ativo: querySnapshot.docs[ 0 ].data().ativo,
+      dataUltimoLogin: querySnapshot.docs[ 0 ].data().data_ultimo_login,
+      tentativasRestantesLogin: querySnapshot.docs[ 0 ].data().tentativas_restantes_login ?? 0
+    }
+
+    return usuario;
+  } catch (e) {
+    console.log(`Erro ao tentar-se consultar o usuário pelo e-mail: ${ e }`);
+
+    throw e;
+  }
+
+}
+
 // buscar o usuário no firebase pelo id
 export const buscarUsuarioPeloId = async (id: string) => {
 
@@ -96,7 +132,8 @@ export const buscarUsuarioPeloId = async (id: string) => {
         email: snapshot.data().email,
         nome: snapshot.data().nome,
         senha: snapshot.data().senha,
-        telefone: snapshot.data().telefone
+        telefone: snapshot.data().telefone,
+        tentativasRestantesLogin: snapshot.data().tentativas_restantes_login ?? 0
       }
 
       return usuario;
@@ -125,6 +162,38 @@ export const alterarSenhaUsuarioFirebase = async (idUsuario: string, novaSenha: 
     console.log("senha alterada com sucesso.");
   } catch (e) {
     console.log("erro ao tentar-se alterar a senha: " + e);
+
+    throw e;
+  }
+
+}
+
+export const alterarTentativasRestantesUsuario = async (idUsuario: string, tentativasRestantes: number) => {
+
+  try {
+    const tentativasRestantesUsuario: number = tentativasRestantes > 0 ? tentativasRestantes : 0;
+
+    const docRef = doc(db, "usuarios", idUsuario);
+
+    await updateDoc(docRef, {
+      tentativas_restantes_login: tentativasRestantesUsuario
+    });
+  } catch (e) {
+
+    throw e;
+  }
+
+}
+
+export const bloquearPerfilUsuario = async (id: string) => {
+
+  try {
+    const docRef = doc(db, "usuarios", id);
+
+    await updateDoc(docRef, {
+      ativo: false
+    });
+  } catch (e) {
 
     throw e;
   }

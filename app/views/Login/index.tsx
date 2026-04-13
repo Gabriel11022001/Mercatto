@@ -1,8 +1,9 @@
+import AlertaErroLogin from "@/app/components/AlertaErroLogin";
 import BotaoPadrao from "@/app/components/BotaoPadrao";
 import Campo, { TipoCampo } from "@/app/components/Campo";
 import Loader from "@/app/components/Loader";
 import Tela from "@/app/components/Tela";
-import { buscarUsuarioPeloEmailSenha } from "@/app/firebase/gestaoUsuario";
+import { alterarTentativasRestantesUsuario, bloquearPerfilUsuario, buscarUsuarioPeloEmail } from "@/app/firebase/gestaoUsuario";
 import { Usuario } from "@/app/type/usuario";
 import { apresentarAlerta, TipoAlerta } from "@/app/utils/apresentarAlertas";
 import { log } from "@/app/utils/log";
@@ -12,7 +13,7 @@ import obterDataFormatada from "@/app/utils/obterDataFormatada";
 import validarEmail from "@/app/utils/validarEmail";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { styles } from "./styles";
 
@@ -25,6 +26,7 @@ const Login = ({ navigation }: any) => {
   const [ erroEmail, setErroEmail ] = useState<string>("");
   const [ erroSenha, setErroSenha ] = useState<string>("");
   const [ senhaVisivel, setSenhaVisivel ] = useState<boolean>(false);
+  const [ erroLogin, setErroLogin ] = useState<string>("");
 
   const onDigitarEmail = (emailDigitado: string): void => {
     setEmail(emailDigitado);
@@ -54,21 +56,54 @@ const Login = ({ navigation }: any) => {
 
   }
 
+  const controlarTentativasLoginRestantesUsuario = async (usuario: Usuario) => {
+    let quantidadeTentativasRestantes: number = 2;
+
+    if (usuario.tentativasRestantesLogin) {
+      quantidadeTentativasRestantes = usuario.tentativasRestantesLogin - 1;
+    }
+
+    // atualizar na base
+    await alterarTentativasRestantesUsuario(usuario.id ?? "", quantidadeTentativasRestantes);
+
+    return quantidadeTentativasRestantes;
+  } 
+
   // efetuar login
   const login = async () => {
     setCarregando(true);
+    setErroLogin("");
 
     try {
       console.log("Efetuando login...");
 
-      const usuarioLogin: Usuario | null = await buscarUsuarioPeloEmailSenha(email, senha);
+      const usuarioLogin: Usuario | null = await buscarUsuarioPeloEmail(email);
+
+      if (usuarioLogin == null) {
+        setErroLogin("Não existe um perfil com o e-mail informado.");
+
+        return;
+      }
 
       if (usuarioLogin != null) {
 
         if (!usuarioLogin.ativo) {
           setCarregando(false);
-          await log.erro("Usuário " + usuarioLogin.email + " encontrado, mas está com perfil inativo.");
-          apresentarAlerta("Perfil desativado!", TipoAlerta.erro);
+          await log.erro("Usuário " + usuarioLogin.email + " encontrado, mas está com perfil bloqueado.");
+          setErroLogin("O perfil está inativo, entre em contato com o administrador para ativar o mesmo.");
+
+          return;
+        }
+
+        if (usuarioLogin.senha.trim() != senha.trim()) {
+          const quantidadeTentativasRestantes: number = await controlarTentativasLoginRestantesUsuario(usuarioLogin);
+          
+          if (quantidadeTentativasRestantes === 0) {
+            await bloquearPerfilUsuario(usuarioLogin.id ?? "");
+            setErroLogin("Seu perfil foi desativado, entre em contato com o administrador para ativar o mesmo.");
+          } else {
+            setErroLogin("E-mail ou senha inválidos, você ainda possui " + quantidadeTentativasRestantes + " tentativas antes que seu perfil seja bloqueado.");
+          }
 
           return;
         }
@@ -86,14 +121,12 @@ const Login = ({ navigation }: any) => {
         });
 
         apresentarAlerta("Login efetuado com sucesso.", TipoAlerta.sucesso);
-      } else {
-        apresentarAlerta("E-mail ou senha inválidos.", TipoAlerta.erro);
       }
 
     } catch (e) {
       await log.erro(`Erro no login para o usuário ${ email }: ${ e }`);
       console.error(`Erro ao tentar-se realizar login: ${ e }`);
-      apresentarAlerta(`${ e }`, TipoAlerta.erro);
+      setErroLogin("Erro ao tentar-se efetuar o login: " + e);
     } finally {
       setCarregando(false);
     }
@@ -170,6 +203,17 @@ const Login = ({ navigation }: any) => {
 
   }
 
+  // depois de 5 segundos, esconder o alerta
+  useEffect(() => {
+
+    if (erroLogin) {
+      setTimeout(() => {
+        setErroLogin("");
+      }, 5000);
+    }
+
+  }, [ erroLogin ]);
+
   useFocusEffect(useCallback(() => {
 
     try {
@@ -191,9 +235,13 @@ const Login = ({ navigation }: any) => {
       { /** tela de carregamento da aplicação */ }
       <Loader msg="Efetuando login, aguarde..." carregando={ carregando } />
       <ScrollView showsVerticalScrollIndicator={ false }>
-        <View style={ styles.containerLogo }>
-          <Image style={ styles.logo } source={ require("@/assets/images/logo.png") } />
+        <View style={ styles.containerTopo }>
+          <Image style={ styles.imagemTopo } source={ require("@/assets/images/mercado.jpg") } />
+          <View style={ styles.containerTopoComLogo }>
+            <Image style={ styles.logo } source={ require("@/assets/images/logo_sem_fundo.png") } />
+          </View>
         </View>
+        <AlertaErroLogin erro={ erroLogin } onFechar={ () => setErroLogin("") } />
         <Text style={ styles.txtEntrar }>Entrar</Text>
         <Text style={ styles.txtFacaLogin }>Faça login para continuar.</Text>
         { /** campo para o usuário informar o e-mail */ }

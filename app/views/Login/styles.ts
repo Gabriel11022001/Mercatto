@@ -3,17 +3,29 @@ import { StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
 
-  containerLogo: {
+  containerTopo: {
     width: "100%",
-    marginBottom: 30,
+    height: 300
+  },
+  imagemTopo: {
+    width: "100%",
+    height: "100%",
+    resizeMode: "cover"
+  },
+  containerTopoComLogo: {
+    position: "absolute",
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
     alignItems: "center",
     justifyContent: "center",
-    elevation: 5,
-    backgroundColor: config.cores.find(c => c.nomeCor === "branco")?.cor ?? "#fff"
+    backgroundColor: "rgba(255, 255, 255, 0.7)",
+    padding: 20
   },
   logo: {
-    width: 150,
-    height: 150
+    width: 300,
+    height: 300
   },
   txtEntrar: {
     color: config.cores.find(c => c.nomeCor === "primaria")?.cor ?? "#000",
@@ -48,7 +60,8 @@ export const styles = StyleSheet.create({
     alignItems: "center",
     borderStyle: "solid",
     borderTopWidth: 1,
-    borderTopColor: config.cores.find(c => c.nomeCor === "borda")?.cor ?? "#000"
+    borderTopColor: config.cores.find(c => c.nomeCor === "borda")?.cor ?? "#000",
+    marginBottom: 100
   },
   txtNovoUsuario: {
     color: config.cores.find(c => c.nomeCor === "texto")?.cor ?? "#000",

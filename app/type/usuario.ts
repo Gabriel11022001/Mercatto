@@ -7,5 +7,6 @@ export type Usuario = {
   senha: string;
   ativo: boolean;
   dataUltimoLogin?: string;
+  tentativasRestantesLogin?: number;
 
 }
