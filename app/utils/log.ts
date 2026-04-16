@@ -6,6 +6,7 @@ export interface Log {
 
   // log de debug
   debug: (mensagem: string, json?: object) => Promise<void>;
+  // log de erro
   erro: (erro: string) => Promise<void>;
 
 }

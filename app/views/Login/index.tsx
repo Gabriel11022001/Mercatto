@@ -269,7 +269,7 @@ const Login = ({ navigation }: any) => {
         { /** botão esqueci minha senha */ }
         <View style={ styles.containerEsqueciSenha }>
           <TouchableOpacity onPress={ () => {
-
+            navigation.navigate("recuperar_senha");
           } } >
             <Text style={ styles.txtEsqueciSenha }>Esqueci minha senha</Text>
           </TouchableOpacity>

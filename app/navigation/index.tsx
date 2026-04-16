@@ -19,6 +19,7 @@ import Home from '../views/Home';
 import Login from '../views/Login';
 import Perfil from '../views/Perfil';
 import Produtos from '../views/Produtos';
+import RecuperarSenha from '../views/RecuperarSenha';
 import SplashScreen from '../views/SplashScreen';
 import Vendas from '../views/Vendas';
 
@@ -120,6 +121,11 @@ const Navigation = () => {
       nome: "perfil",
       componente: Perfil,
       titulo: "Perfil"
+    },
+    {
+      nome: "recuperar_senha",
+      componente: RecuperarSenha,
+      titulo: "Recuperar Senha"
     }
   ];
 
