@@ -241,7 +241,7 @@ const Login = ({ navigation }: any) => {
             <Image style={ styles.logo } source={ require("@/assets/images/logo_sem_fundo.png") } />
           </View>
         </View>
-        <AlertaErroLogin erro={ erroLogin } onFechar={ () => setErroLogin("") } />
+        <AlertaErroLogin erro={ erroLogin } />
         <Text style={ styles.txtEntrar }>Entrar</Text>
         <Text style={ styles.txtFacaLogin }>Faça login para continuar.</Text>
         { /** campo para o usuário informar o e-mail */ }

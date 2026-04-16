@@ -36,22 +36,6 @@ const styles = StyleSheet.create({
     color: "#000",
     fontWeight: "bold",
     fontSize: 18
-  },
-  btnOk: {
-    backgroundColor: "red",
-    padding: 10,
-    width: "100%",
-    marginBottom: 10,
-    alignItems: "center",
-    justifyContent: "center",
-    borderRadius: 10,
-    elevation: 5
-  },
-  txtBtnOk: {
-    color: "#fff",
-    fontWeight: "bold",
-    textAlign: "center",
-    fontSize: 18
   }
 
 });
