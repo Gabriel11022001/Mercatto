@@ -1,5 +1,7 @@
 import BotaoPadrao from "@/app/components/BotaoPadrao";
 import Campo, { TipoCampo } from "@/app/components/Campo";
+import DialogVisualizarFotoProduto from "@/app/components/DialogVisualizarFotoProduto";
+import FotosProdutoLista from "@/app/components/FotosProdutoLista";
 import Loader from "@/app/components/Loader";
 import Tela from "@/app/components/Tela";
 import { listarCategoriasFirebase } from "@/app/firebase/gestaoCategoria";
@@ -10,8 +12,10 @@ import { apresentarAlerta, TipoAlerta } from "@/app/utils/apresentarAlertas";
 import { log } from "@/app/utils/log";
 import obterValorMonetario from "@/app/utils/obterValorMonetario";
 import { useFocusEffect } from "@react-navigation/native";
+import * as ImagePicker from "expo-image-picker";
 import { useCallback, useEffect, useState } from "react";
-import { ScrollView } from "react-native";
+import { ScrollView, Text, View } from "react-native";
+import styles from "./styles";
 
 enum TipoCampoProduto {
 
@@ -22,6 +26,16 @@ enum TipoCampoProduto {
   estoque
 
 }
+
+export type FotoProduto = {
+
+  idFoto: string;
+  idProduto: string;
+  foto: string;
+
+}
+
+const LIMITE_FOTOS = 5;
 
 // tela de cadastro de produto
 const CadastroProduto = ({ navigation, route }: any) => {
@@ -55,6 +69,8 @@ const CadastroProduto = ({ navigation, route }: any) => {
       valor: "Inativo"
     }
   ];
+  const [ fotosProduto, setFotosProduto ] = useState<FotoProduto[]>([]);  
+  const [ fotoProdutoVisualizar, setFotoProdutoVisualizar ] = useState<FotoProduto | null>(null);
 
   // função invocada no momento de digitar o valor do campo
   const onDigitar = (valorDigitado: string, campo: TipoCampoProduto): void => {
@@ -201,7 +217,8 @@ const CadastroProduto = ({ navigation, route }: any) => {
           status: true
         },
         estoque: parseInt(estoque),
-        statusEstoque: "estoque_disponivel"
+        statusEstoque: "estoque_disponivel",
+        fotos: fotosProduto
       }
 
       // validar se já existe outro produto cadastrado com o mesmo nome
@@ -255,7 +272,8 @@ const CadastroProduto = ({ navigation, route }: any) => {
         preco: parseFloat(preco.replace(",", ".").replace(".", "").trim()) / 100,
         precoComDesconto: precoComDesconto != null && precoComDesconto != "" ? 
           parseFloat(precoComDesconto.replace(",", ".").replace(".", "").trim()) / 100 
-          : undefined
+          : undefined,
+        fotos: fotosProduto
       }
 
       // validar se existe outro produto cadastrado com o mesmo nome
@@ -337,6 +355,10 @@ const CadastroProduto = ({ navigation, route }: any) => {
 
     } else {
       console.log("Não existem categorias.");
+    }
+
+    if (produto.fotos && produto.fotos.length > 0) {
+      setFotosProduto(produto.fotos);
     }
 
   }
@@ -430,6 +452,73 @@ const CadastroProduto = ({ navigation, route }: any) => {
 
   }
 
+  // solicitar permissão para tirar foto
+  const solicitarPermissaoTirarFoto = async () => {
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+  
+    if (status === "granted") {
+  
+      return true;
+    }
+  
+    return false;
+  }
+
+  // tirar fotos do produto
+  const tirarFotosProduto = async () => {
+
+    try {
+
+      if (fotosProduto.length === LIMITE_FOTOS) {
+        apresentarAlerta("Limite de fotos atingido!", TipoAlerta.aviso);
+
+        return;
+      }
+
+      if (await solicitarPermissaoTirarFoto()) {
+        const resultadoTirarFotosProduto = await ImagePicker.launchCameraAsync({
+          mediaTypes: ImagePicker.MediaTypeOptions.Images,
+          allowsEditing: false,
+          quality: 0.7,
+          base64: true
+        });
+
+        if (!resultadoTirarFotosProduto.canceled) {
+          const fotoTirada = resultadoTirarFotosProduto.assets[ 0 ];
+          const base64Foto: string = fotoTirada.base64 ?? "";
+
+          const fotosAtuais: Array<FotoProduto> = [ ...fotosProduto ];
+
+          fotosAtuais.push({
+            foto: base64Foto,
+            idProduto: "",
+            idFoto: ""
+          });
+
+          setFotosProduto(fotosAtuais);
+
+          apresentarAlerta("Foto tirada com sucesso.", TipoAlerta.sucesso);
+        }
+
+      } else {
+        apresentarAlerta("Não possui permissão para tirar foto!", TipoAlerta.erro);
+      }
+
+    } catch (e) {
+      log.erro("Erro ao tentar-se tirar foto do produto: " + e);
+      apresentarAlerta("Erro ao tentar-se tirar foto!", TipoAlerta.erro);
+    }
+
+  }
+
+  // remover foto do produto
+  const removerFoto = (foto: FotoProduto) => { 
+    const fotosAtualizar: Array<FotoProduto> = fotosProduto.filter(f => f.foto != foto.foto);
+    setFotosProduto(fotosAtualizar);
+
+    apresentarAlerta("Foto removida com sucesso!", TipoAlerta.sucesso);
+  }
+
   useEffect(() => {
     
     if (produtoEditarId != "") {
@@ -450,6 +539,8 @@ const CadastroProduto = ({ navigation, route }: any) => {
   return <Tela>
     <Loader carregando={ carregando } msg="Enviando os dados do produto para o servidor, aguarde..." />
     <ScrollView showsVerticalScrollIndicator={ false }>
+      { /** dados básicos sobre o produto */ }
+      <Text style={ styles.titulo }>Dados Básicos</Text>
       { /** campo para o usuário informar o nome do produto */ }
       <Campo
         valor={ nomeProduto }
@@ -559,11 +650,22 @@ const CadastroProduto = ({ navigation, route }: any) => {
         alterarValor={ (estoqueDigitado: string) => {
           onDigitar(estoqueDigitado, TipoCampoProduto.estoque);
         } } />
+      <View style={ styles.separador } />
+      { /** fotos do produto */ }
+      <Text style={ styles.titulo }>Fotos</Text>
+      <FotosProdutoLista
+        fotos={ fotosProduto }
+        onRemoverFoto={ (foto: FotoProduto) => { removerFoto(foto); } }
+        onTirarFoto={ tirarFotosProduto }
+        onVisualizarFoto={ (foto: FotoProduto) => { setFotoProdutoVisualizar(foto); } } />
       <BotaoPadrao
         habilitado={ habilitarBotaoSalvar }
         titulo={ produtoEditarId === "" ? "Cadastrar" : "Salvar" }
         onPressionar={ salvar } />
     </ScrollView>
+    { fotoProdutoVisualizar && <DialogVisualizarFotoProduto foto={ fotoProdutoVisualizar } onFechar={ () => {
+      setFotoProdutoVisualizar(null);
+    } } /> }
   </Tela>
 }
 

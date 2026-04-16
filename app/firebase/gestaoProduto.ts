@@ -1,6 +1,7 @@
 import { db } from "@/firebase_config";
-import { addDoc, collection, doc, getDoc, getDocs, query, updateDoc, where } from "firebase/firestore";
+import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, query, updateDoc, where } from "firebase/firestore";
 import { Produto } from "../type/produto";
+import { FotoProduto } from "../views/CadastroProduto";
 import { buscarCategoriaPeloIdFirebase } from "./gestaoCategoria";
 
 // cadastrar produto no firebase
@@ -19,6 +20,22 @@ export const cadastrarProdutoFirebase = async (produto: Produto) => {
     });
     
     produto.id = docRefCadastrarProduto.id;
+
+    // cadastrar as fotos do produto
+    if (produto.fotos && produto.fotos.length > 0) {
+
+      for (var foto of produto.fotos) {
+        const docRefCadastrarFotoProduto = await addDoc(collection(db, "fotos_produto"), {
+          produto_id: produto.id ?? "",
+          foto: foto.foto
+        });
+
+        foto.idFoto = docRefCadastrarFotoProduto.id;
+
+        console.log("Foto cadastrada com sucesso para o produto " + produto.nomeProduto);
+      }
+
+    }
 
     console.log("Produto cadastrado com sucesso.");
 
@@ -74,6 +91,36 @@ export const listarProdutosFirebase = async () => {
   
 }
 
+// deletar todas as fotos do produto da base de dados
+const deletarFotosPorProduto = async (idProduto: string) => {
+
+  try {
+    const fotosRef = collection(db, "fotos_produto");
+
+    const q = query(
+      fotosRef,
+      where("produto_id", "==", idProduto)
+    );
+
+    const snapshot = await getDocs(q);
+
+    const promises: Promise<void>[] = [];
+
+    snapshot.forEach((item) => {
+      const ref = doc(db, "fotos_produto", item.id);
+      promises.push(deleteDoc(ref));
+    });
+
+    await Promise.all(promises);
+
+    console.log("Todas as fotos deletadas com sucesso!");
+  } catch (e) {
+
+    throw e;
+  }
+
+};
+
 // editar produto no firebase
 export const editarProdutoFirebase = async (produto: Produto) => {
 
@@ -90,6 +137,25 @@ export const editarProdutoFirebase = async (produto: Produto) => {
       preco: produto.preco,
       preco_com_desconto: produto.precoComDesconto ?? ""
     });
+
+    // deletar todas as fotos do produto
+    await deletarFotosPorProduto(produto.id ?? "");
+
+    // cadastrar as novas fotos do produto
+    if (produto.fotos && produto.fotos.length > 0) {
+
+      for (var foto of produto.fotos) {
+        const docRefCadastrarFotoProduto = await addDoc(collection(db, "fotos_produto"), {
+          produto_id: produto.id ?? "",
+          foto: foto.foto
+        });
+
+        foto.idFoto = docRefCadastrarFotoProduto.id;
+
+        console.log("Foto cadastrada com sucesso para o produto " + produto.nomeProduto);
+      }
+
+    }
 
     console.log("Produto editado com sucesso.");
   } catch (e) {
@@ -174,6 +240,30 @@ export const buscarProdutoPeloIdFirebase = async (id: string) => {
         }
       }
       
+      // buscar as fotos do produto
+      const fotosRef = collection(db, "fotos_produto");
+
+      const q = query(
+        fotosRef,
+        where("produto_id", "==", produto.id ?? "")
+      );
+
+      const querySnapshotConsultarFotos = await getDocs(q);
+
+      if (!querySnapshotConsultarFotos.empty) {
+        const fotos: Array<FotoProduto> = [];
+
+        querySnapshotConsultarFotos.forEach((fotoDb) => {
+          fotos.push({
+            idFoto: fotoDb.id ?? "",
+            idProduto: fotoDb.data().produto_id,
+            foto: fotoDb.data().foto
+          });
+        });
+
+        produto.fotos = fotos;
+      }
+
       return produto;
     } else {
     

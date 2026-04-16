@@ -1,3 +1,4 @@
+import { FotoProduto } from "../views/CadastroProduto";
 import CategoriaProduto from "./categoriaProduto";
 
 export enum StatusProduto {
@@ -18,5 +19,6 @@ export type Produto = {
   ativo: boolean;
   statusEstoque: string;
   estoque: number;
+  fotos?: Array<FotoProduto>;
 
 }

@@ -51,6 +51,14 @@ const Vendas = ({ navigation }: any) => {
       const vendaDeletar: Venda | null = await buscarVendaPeloIdFirebase(id);
 
       if (vendaDeletar != null) {
+
+        // se for venda finalizada, não permitir deletar, só rascunho mesmo
+        if (vendaDeletar.status === "finalizada") {
+          apresentarAlerta("Não é permitido deletar uma venda finalizada!", TipoAlerta.aviso);
+
+          return;
+        }
+
         await deletarVendaFirebase(vendaDeletar);
 
         apresentarAlerta("Venda deletada com sucesso.", TipoAlerta.sucesso);
