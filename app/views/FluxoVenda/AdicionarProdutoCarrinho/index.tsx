@@ -11,7 +11,7 @@ import { config } from "@/config";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useFocusEffect } from "@react-navigation/native";
 import { useCallback, useState } from "react";
-import { FlatList, Pressable, Text, View } from "react-native";
+import { FlatList, Image, Pressable, Text, View } from "react-native";
 import { styles } from "./styles";
 
 // tela para o usuário adicionar produtos no carrinho de compras
@@ -97,7 +97,12 @@ const AdicionarProdutoCarrinho = ({ navigation }: any) => {
           styles.produtoItem,
           index === produtosDisponiveis.length - 1 && { marginBottom: 100 }
         ] }>
-          <View> 
+          { (item.fotos && item.fotos.length > 0) && <Image
+            style={ styles.foto }
+            source={ {
+              uri: `data:image/jpeg;base64,${ item.fotos[ 0 ].foto ?? "" }`
+            } } /> }
+          <View style={ styles.containerDadosProduto }> 
             <Text style={ styles.txtNomeProduto }>{ item.nomeProduto }</Text>
             <Text style={ styles.txtDado }>Preço unitário: R${ obterValorMonetario(item.preco.toString()) }</Text>
             { item.precoComDesconto != null && item.precoComDesconto != undefined && item.precoComDesconto != 0 && <Text style={ styles.txtDado }>

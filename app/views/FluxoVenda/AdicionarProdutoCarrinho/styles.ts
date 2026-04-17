@@ -7,7 +7,6 @@ export const styles = StyleSheet.create({
     width: "90%",
     marginStart: "5%",
     marginEnd: "5%",
-    padding: 20,
     elevation: 5,
     backgroundColor: "#fff",
     borderRadius: 12,
@@ -15,7 +14,7 @@ export const styles = StyleSheet.create({
     marginBottom: 10,
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
+    justifyContent: "space-around",
     borderColor: config.cores.find(c => c.nomeCor === "borda")?.cor ?? "#000",
     borderWidth: 1,
     borderStyle: "solid"
@@ -29,6 +28,18 @@ export const styles = StyleSheet.create({
     color: config.cores.find(c => c.nomeCor === "texto")?.cor ?? "#000",
     marginTop: 3,
     fontSize: 15
+  },
+  containerDadosProduto: {
+    flex: 1,
+    paddingTop: 20,
+    paddingBottom: 20
+  },
+  foto: {
+    width: 100,
+    height: "100%",
+    marginEnd: 10,
+    borderTopLeftRadius: 12,
+    borderBottomLeftRadius: 12
   }
   
 });

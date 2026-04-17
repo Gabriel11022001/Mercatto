@@ -55,7 +55,7 @@ const CarrosselFotosProduto = ({ fotos }: Props) => {
 
     return null;
   }
- 
+
   return <View style={ styles.carrosselContainer }>
     <Image style={ styles.foto } source={ { uri: `data:image/jpeg;base64,${ fotoAtualApresentar?.foto ?? "" }` } } />
     { fotos.length > 1 && <View style={ styles.containerProgressoFotos }>
