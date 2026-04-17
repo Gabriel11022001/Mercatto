@@ -4,9 +4,7 @@ import { StyleSheet } from "react-native";
 const styles = StyleSheet.create({
 
   item: {
-    width: "90%",
-    marginStart: "5%",
-    marginEnd: "5%",
+    width: "100%",
     marginTop: 10,
     marginBottom: 10,
     backgroundColor: config.cores.find(c => c.nomeCor === "branco")?.cor ?? "#fff",
@@ -22,7 +20,10 @@ const styles = StyleSheet.create({
   },
   containerDadosProduto: {
     flex: 1,
-    flexDirection: "column"
+    flexDirection: "column",
+    width: "90%",
+    marginStart: "5%",
+    marginEnd: "5%"
   },
   nomeProduto: {
     fontSize: 16,
@@ -48,9 +49,11 @@ const styles = StyleSheet.create({
     borderStyle: "solid",
     flexDirection: "column",
     alignItems: "flex-start",
-    width: "100%",
+    width: "90%",
     elevation: 10,
-    marginTop: 30
+    marginTop: 30,
+    marginStart: "5%",
+    marginEnd: "5%"
   }
   
 });

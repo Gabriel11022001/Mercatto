@@ -66,6 +66,29 @@ export const listarProdutosFirebase = async () => {
         );
       }
 
+      // buscar as fotos do produto
+      const fotos: Array<FotoProduto> = [];
+
+      const fotosRef = collection(db, "fotos_produto");
+
+      const q = query(
+        fotosRef,
+        where("produto_id", "==", prod.id ?? "")
+      );
+
+      const querySnapshotConsultarFotos = await getDocs(q);
+
+      if (!querySnapshotConsultarFotos.empty) {
+        querySnapshotConsultarFotos.forEach((fotoDb) => {
+          fotos.push({
+            idFoto: fotoDb.id ?? "",
+            idProduto: fotoDb.data().produto_id,
+            foto: fotoDb.data().foto
+          });
+        });
+
+      }
+
       produtos.push({
         id: prod.id,
         nomeProduto: prod.data().nome_produto,
@@ -79,7 +102,8 @@ export const listarProdutosFirebase = async () => {
           id: categoria.id ?? "",
           nomeCategoria: categoria.nomeCategoria,
           status: categoria.status
-        }
+        },
+        fotos: fotos
       });
     }
 
@@ -207,6 +231,20 @@ export const buscarProdutoPeloNomeFirebase = async (nome: string) => {
 
 // deletar o produto no firebase
 export const deletarProdutoFirebase = async (idProduto: string) => {
+
+  try {
+    // deletar todas as fotos do produto
+    await deletarFotosPorProduto(idProduto);
+
+    // deletar o produto
+    const ref = doc(db, "produtos", idProduto);
+    await deleteDoc(ref);
+
+    console.log("Produto deletado com sucesso: " + idProduto);
+  } catch (e) {
+
+    throw e;
+  }
 
 }
 

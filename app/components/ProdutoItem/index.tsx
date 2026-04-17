@@ -3,6 +3,7 @@ import { config } from "@/config";
 import Entypo from "@expo/vector-icons/Entypo";
 import { useState } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
+import CarrosselFotosProduto from "../CarrosselFotosProduto";
 import Operacao, { TipoOperacao } from "../Operacao";
 import Status, { StatusItem } from "../Status";
 import styles from "./styles";
@@ -38,6 +39,8 @@ export const ProdutoItem = ({ produto, onDeletar, onVisualizar, onEditar, onAlte
   }
 
   return <View style={ styles.item }>
+    { /** carrossel apresentando as fotos dos produtos */ }
+    <CarrosselFotosProduto fotos={ produto.fotos ?? [] } />
     <View style={ styles.containerDadosProduto }>
       <Text style={ styles.nomeProduto }>{ produto.nomeProduto }</Text> 
       <Text style={ styles.dado }>{ produto.estoque === 1 ? `${ produto.estoque } unidade em estoque` : `${ produto.estoque } unidades em estoque` }</Text>
@@ -51,7 +54,7 @@ export const ProdutoItem = ({ produto, onDeletar, onVisualizar, onEditar, onAlte
       <Text style={ [ styles.dado, styles.dadoDestacado ] }>Categoria: { produto.categoria?.nomeCategoria }</Text>
       <Status status={ produto.ativo ? StatusItem.ativo : StatusItem.inativo } />
     </View>
-    <View>
+    <View style={ { marginEnd: "5%" } }>
       <TouchableOpacity onPress={ () => setApresentarOperacoes(!apresentarOperacoes) }>
         <Entypo name="dots-three-vertical" size={ 30 } color={ config.cores.find(c => c.nomeCor === "texto")?.cor ?? "#000" } />
       </TouchableOpacity>

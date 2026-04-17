@@ -73,7 +73,7 @@ const Produtos = ({ navigation, route }: any) => {
 
       // validar se o produto está vinculado a vendas
       if (await validarProdutoVinculadoVendas(idProdutoDeletar)) {
-        apresentarAlerta("Produto vinculado a venda!", TipoAlerta.aviso);
+        apresentarAlerta("Produto vinculado a venda(s)!", TipoAlerta.aviso);
 
         return;
       }
